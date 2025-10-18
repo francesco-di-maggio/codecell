@@ -1,10 +1,10 @@
 # CodeCell - Max/MSP Patch
 
-Max/MSP patch for receiving and processing real-time sensor data from CodeCell via OSC.
+Max/MSP patch for receiving and processing real-time sensor data from CodeCell.
 
 ## Overview
 
-This patch receives quaternion rotation, acceleration, battery status, and button data from the CodeCell firmware at 50Hz over WiFi.
+This patch receives quaternion rotation, acceleration, battery status, and button data from CodeCell at up to 50Hz.
 
 ## Requirements
 
@@ -211,7 +211,7 @@ The included `codecell.maxpat` provides a basic template. Customize it for your 
 
 ## Resources
 
-- **OSC Specification:** http://opensoundcontrol.org/
+- **OSC Protocol:** http://opensoundcontrol.org/
 - **Max/MSP Documentation:** https://docs.cycling74.com/
 - **CNMAT Externals:** https://github.com/CNMAT/CNMAT-Externs
 - **Firmware Source:** `/arduino/codecell/`

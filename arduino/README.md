@@ -1,11 +1,11 @@
 # CodeCell - Arduino Firmware
 
-Real-time sensor streaming firmware for CodeCell (ESP32-C3 + BNO085 IMU) via OSC over WiFi.
+Real-time sensor streaming firmware for CodeCell (ESP32-C3 + BNO085 IMU).
 
 ## Quick Start
 
 1. **Install Prerequisites** (see below)
-2. **Copy and configure** `secrets.template.h` to `secrets.h`
+2. **Copy and configure** `secrets.template.h` to `secrets.h` (for WiFi)
 3. **Open** `codecell.ino` in Arduino IDE
 4. **Select board** settings (see below)
 5. **Upload** to CodeCell
@@ -71,9 +71,9 @@ cp secrets.template.h secrets.h
 const char* ssid = "YourNetworkName";
 const char* password = "YourPassword";
 
-// OSC target (computer receiving data)
+// Target device (computer receiving data)
 IPAddress receiverIP(192, 168, 1, 100);  // Your computer's IP
-const unsigned int receiverPort = 8000;
+const unsigned int receiverPort = 8000;   // Default: 8000
 ```
 
 ### Finding Your Computer's IP Address
@@ -95,7 +95,7 @@ ip addr show
 ```
 
 ### Important Notes
-- CodeCell and computer must be on the **same WiFi network**
+- CodeCell and computer must be on the **same WiFi network** (for OSC mode)
 - Use **2.4GHz WiFi** (ESP32-C3 doesn't support 5GHz)
 - **secrets.h is gitignored** - safe to add credentials
 
@@ -108,15 +108,13 @@ ip addr show
 5. **Open Serial Monitor** (Tools → Serial Monitor or Ctrl+Shift+M)
 6. **Set baud rate** to 115200
 
-### Expected Serial Output
-```
 ### Example Output
 ```
 CodeCell v1.1.0
 Connecting to WiFi...
 Connected to WiFi: YourNetworkName
 IP address: 192.168.1.42
-Sending OSC to: 192.168.1.100:8000
+Sending to: 192.168.1.100:8000
 Initializing BNO085...
 BNO085 initialized successfully
 Ready - streaming at 50Hz
@@ -178,7 +176,7 @@ fatal error: secrets.h: No such file or directory
 
 ## Configuration Options
 
-### Enable/Disable Sensors
+### Enable/Disable Features
 
 In `codecell.ino`, comment/uncomment defines:
 
@@ -187,14 +185,14 @@ In `codecell.ino`, comment/uncomment defines:
 #define ACCEL     // Linear acceleration
 #define BATTERY   // Power monitoring
 #define BUTTONS   // GPIO button inputs
-#define OSC       // Network protocol
+#define OSC       // OSC over WiFi (default protocol)
 ```
 
 ### Adjust Update Rates
 
 ```cpp
 const int SENSOR_RATE_HZ = 50;   // I2C sensor reads (critical timing)
-const int SENDER_RATE_HZ = 50;   // Network transmission (independent)
+const int SENDER_RATE_HZ = 50;   // Data transmission rate (independent)
 ```
 
 **Lower rates = longer battery life:**
@@ -212,11 +210,11 @@ const float ACCEL_NOISE_DEADZONE = 0.75f;     // Idle motion filter
 
 **Higher thresholds = less transmission = longer battery life**
 
-### Change OSC Address Pattern
+### Change Device Address
 
 ```cpp
-const int DEVICE_INDEX = 1;               // Changes /codecell/1/ to /codecell/N/
-const char* BASE_ADDRESS = "/codecell";   // Base OSC path
+const int DEVICE_INDEX = 1;               // Device identifier
+const char* BASE_ADDRESS = "/codecell";   // Base address (OSC mode)
 ```
 
 Useful when using multiple CodeCell devices simultaneously.
@@ -227,10 +225,10 @@ Useful when using multiple CodeCell devices simultaneously.
 Make changes in `codecell.ino`
 
 ### 2. Verify
-Click **Verify** (✓) button to check for errors without uploading
+Click Verify button to check for errors without uploading
 
 ### 3. Upload
-Click **Upload** (→) when ready to flash device
+Click Upload button when ready to flash device
 
 ### 4. Monitor
 Open **Serial Monitor** to see debug output and confirm operation
@@ -253,20 +251,20 @@ const int BATTERY_CAPACITY_MAH = 150;  // Change to your battery's mAh
 ## Technical Highlights
 
 ### I2C Timeout Protection
-Decoupled sensor reads from network transmission prevents WiFi delays from causing I2C timeouts:
+Decoupled sensor reads from data transmission prevents communication delays from causing I2C timeouts:
 ```cpp
 // Sensor reads - precise I2C timing at SENSOR_RATE_HZ
 if (myCodeCell.Run(SENSOR_RATE_HZ)) {
   readSensors();
 }
 
-// Network sends - independent timing at SENDER_RATE_HZ  
+// Data transmission - independent timing at SENDER_RATE_HZ  
 if (now - last_send >= (1000 / SENDER_RATE_HZ)) {
   sendSensors();
 }
 ```
 
-Network delays (WiFi congestion, retries) cannot interfere with sensor I2C communication.
+Communication delays (WiFi congestion, retries) cannot interfere with sensor I2C communication.
 
 ### Quaternion Sign Continuity
 Prevents orientation flips at antipodal points using dot product detection:
@@ -280,19 +278,19 @@ if (dot < 0.0f) {
 Ensures smooth continuous rotation without sudden jumps.
 
 ### Change-Based Transmission
-Only sends OSC when sensors exceed thresholds:
+Only sends data when sensors exceed thresholds:
 - Quaternions: 0.02 Euclidean distance
 - Acceleration: 0.1 m/s²
 - Battery: Level or state changes
 
-Reduces network traffic and power consumption while maintaining responsiveness.
+Reduces transmission overhead and power consumption while maintaining responsiveness.
 
 ## Performance Characteristics
 
 - **Sensor read time:** 1-2ms
-- **Network send time:** 1-15ms (WiFi variable)
+- **Transmission time:** 1-15ms (WiFi variable)
 - **Loop cycle:** 20ms @ 50Hz
-- **WiFi latency:** 10-30ms typical
+- **Typical latency:** 10-30ms (WiFi)
 - **Total latency:** ~30-50ms (sensor to receiver)
 
 ## Hardware Pinout
@@ -313,10 +311,10 @@ See [CHANGELOG.md](../CHANGELOG.md) for complete version history and technical d
 
 ## Advanced Topics
 
-### Custom OSC Messages
+### Custom Messages (OSC Mode)
 Add new messages in `sendOSC()` function:
 ```cpp
-OSCMessage msg("/codecell/1/custom");
+OSCMessage msg("/codecell/DEVICE_INDEX/custom");
 msg.add(myValue);
 bundle.add(msg);
 ```
@@ -324,11 +322,10 @@ bundle.add(msg);
 ### Multiple BNO085 Sensors
 CodeCell board only has one I2C IMU. For multiple sensors, use multiple CodeCell boards with different `DEVICE_INDEX` values.
 
-### Serial Communication Instead of OSC
-Comment out `#define OSC` and implement Serial output in `loop()`.
+### Alternative Protocols
+Comment out `#define OSC` and implement alternative output (Serial, MIDI, BLE) in `loop()`.
 
-### Deep Sleep Mode
-Not currently implemented. CodeCell library doesn't expose deep sleep APIs yet.
+Serial, MIDI, and BLE protocols are planned for future releases.
 
 ## Resources
 
@@ -336,7 +333,7 @@ Not currently implemented. CodeCell library doesn't expose deep sleep APIs yet.
 - **CodeCell Library:** https://github.com/microbots-io/codecell
 - **ESP32-C3 Datasheet:** https://www.espressif.com/en/products/socs/esp32-c3
 - **BNO085 Datasheet:** https://www.ceva-dsp.com/product/bno080-085/
-- **OSC Specification:** http://opensoundcontrol.org/
+- **OSC Protocol:** http://opensoundcontrol.org/
 
 ## Contributing
 

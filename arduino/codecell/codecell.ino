@@ -1,9 +1,10 @@
 /*
- * CodeCell - Real-time sensor streaming via OSC/UDP
- * Quaternions, acceleration, battery, buttons → OSC over WiFi
+ * CodeCell - Real-time sensor streaming
+ * Quaternions, acceleration, battery, buttons
  * 
  * Hardware: ESP32-C3 + BNO085 9-DOF IMU (CodeCell board)
  * Repository: https://github.com/francesco-di-maggio/codecell
+ * Protocol: OSC over WiFi (MIDI, BLE, Serial support planned)
  * 
  * Configure secrets.h for network settings
  */
