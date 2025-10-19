@@ -149,10 +149,10 @@ E (2717) i2c.master: I2C transaction unexpected nack detected
 ```
 E (xxxxx) i2c.master: I2C transaction timeout detected
 ```
-**Should NOT occur in current version.** If you see this:
-1. Check you're using latest firmware version
-2. Verify `SENSOR_RATE_HZ` and `SENDER_RATE_MS` are properly configured
-3. Report as bug on GitHub if persistent
+If you see this during operation:
+1. Try disabling WiFi sleep: verify `WiFi.setSleep(false)` is in `connectWiFi()`
+2. Check `SENSOR_RATE_HZ` is set to 50Hz or lower  
+3. Report as issue on GitHub if persistent
 
 ### Compilation Errors
 
@@ -186,19 +186,39 @@ In `codecell.ino`, comment/uncomment defines:
 #define BATTERY   // Power monitoring
 #define BUTTONS   // GPIO button inputs
 #define OSC       // OSC over WiFi (default protocol)
+#define PING      // Heartbeat/keepalive messages (1Hz)
 ```
 
 ### Adjust Update Rates
 
 ```cpp
-const int SENSOR_RATE_HZ = 50;   // I2C sensor reads (critical timing)
-const int SENDER_RATE_MS = 20;   // Data transmission interval (20ms = 50Hz)
+const int SENSOR_RATE_HZ = 50;   // Sensor read rate
 ```
 
 **Lower rates = longer battery life:**
 - 20Hz: 1h 15min runtime
 - 25Hz: 1h 12min runtime
 - 50Hz: 1h 4min runtime (default)
+
+### WiFi Sleep Management
+
+v1.1.1+ includes WiFi sleep configuration:
+
+```cpp
+WiFi.setSleep(false);  // Disable WiFi modem sleep
+```
+
+**Trade-offs:**
+- **Disabled (default):** +20mA power consumption
+- **Enabled:** Power saving, potential I2C timing interference
+
+### Ping/Heartbeat Configuration
+
+```cpp
+const int PING_RATE_MS = 1000;  // Heartbeat interval (1Hz default)
+```
+
+Ping messages ensure receivers can detect device connectivity even when idle.
 
 ### Adjust Sensitivity
 

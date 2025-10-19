@@ -2,8 +2,11 @@
 
 ## [1.1.1] - 2025-10-19
 
+### Added
+- Ping/heartbeat functionality for device activity monitoring
+- WiFi.setSleep(false) configuration to disable modem sleep
+
 ### Changed
-- Increased sensor read rate from 50Hz to 100Hz to match BNO085 internal rate
 - Removed separate sender timing - now sends immediately after each sensor read
 - Reordered initialization: WiFi connects before sensor initialization
 
@@ -23,7 +26,3 @@ Initial public release.
 - I2C timeout protection mechanism
 - 50Hz real-time performance (20ms cycle time)
 - Configurable rates (sensor and transmission independent)
-
-### Protocols
-- OSC over WiFi (current implementation)
-- MIDI, BLE, Serial support planned for future releases

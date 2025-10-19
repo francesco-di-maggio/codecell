@@ -25,9 +25,11 @@ Real-time sensor streaming from CodeCell (ESP32-C3 + BNO085).
 
 ### Firmware
 - Quaternion streaming with sign continuity (no orientation flips)
-- 100Hz sensor rate matched to BNO085 internal rate
+- Adjustable sensor rate in Hz (default: 50Hz)
 - Change-based transmission for efficient bandwidth usage
 - Battery monitoring with runtime estimation
+- Ping/heartbeat functionality for device activity monitoring
+- WiFi sleep management configuration
 - OSC over WiFi protocol (MIDI, BLE, Serial support planned)
 
 ### Hardware
@@ -48,12 +50,13 @@ Real-time sensor streaming from CodeCell (ESP32-C3 + BNO085).
 | Runtime | `/runtime` | hh.mm | Estimated remaining time |
 | Button 1 | `/button/1` | state | Pressed (1) or Released (0) |
 | Button 2 | `/button/2` | state | Pressed (1) or Released (0) |
+| Ping | `/ping` | 1 | Heartbeat/keepalive (1Hz) |
 
 ### Current Implementation: OSC over WiFi
 - Default Port: UDP 8000
 - Protocol: OSC bundles (multiple messages per packet)
 - Address Pattern: `/codecell/DEVICE_INDEX/{stream}`
-- Rate: 100Hz sensor read, change-based transmission (actual rate varies with movement)
+- Rate: 50Hz sensor read, change-based transmission + 1Hz ping heartbeat
 
 ## Documentation
 
@@ -108,6 +111,7 @@ codecell/
 
 ### Common Issues
 - No data received: Check WiFi connection and IP address in `secrets.h`
+- I2C NACK errors: Try disabling WiFi sleep (WiFi.setSleep(false))
 - Choppy data: Move closer to WiFi router, reduce interference
 
 Detailed troubleshooting: See [arduino/README.md](arduino/README.md#troubleshooting)

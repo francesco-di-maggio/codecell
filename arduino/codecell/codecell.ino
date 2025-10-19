@@ -36,13 +36,14 @@ const char* AUTHOR = "Francesco Di Maggio";
 // OUTPUT PROTOCOLS - Enable/Disable
 // ================================
 #define OSC                     // OSC over UDP WiFi
+#define PING                    // Periodic ping message (heartbeat)
 
 // ================================
 // SYSTEM CONFIGURATION
 // ================================
 const int DEVICE_INDEX = 1;                    // Device ID for OSC addressing
 const char* BASE_ADDRESS = "/codecell";        // OSC base address
-const int SENSOR_RATE_HZ = 100;                // Sensor reading rate (Hz)
+const int SENSOR_RATE_HZ = 50;                 // Sensor reading rate (Hz)
 
 // ================================
 // NETWORK CONFIGURATION
@@ -84,21 +85,21 @@ CodeCell myCodeCell;
 // SENSOR CONFIGURATION & DATA
 // ================================
 #ifdef QUAT
-const float QUAT_CHANGE_THRESHOLD = 0.02f;     // Quaternion change detection threshold (smooth motion vs drift balance)
+const float QUAT_CHANGE_THRESHOLD = 0.01f;     // Quaternion change detection threshold (smooth motion vs drift balance)
 float qw = 0.0, qx = 0.0, qy = 0.0, qz = 0.0;  // Quaternion components (w, x, y, z)
 bool quat_changed = false;                     // Change detection cache
 #endif
 
 #ifdef ACCEL  
 const float ACCEL_CHANGE_THRESHOLD = 0.1f;     // Acceleration change detection (m/s²)
-const float ACCEL_NOISE_DEADZONE = 0.75f;      // Noise floor for idle filtering (m/s²)
+const float ACCEL_NOISE_DEADZONE = 0.5f;       // Noise floor for idle filtering (m/s²)
 float x = 0.0, y = 0.0, z = 0.0;               // Linear acceleration (m/s²)
 bool accel_changed = false;                    // Change detection cache
 #endif
 
 #ifdef BATTERY
 const int BATTERY_CAPACITY_MAH = 150;          // LiPo battery capacity (change to match yours)
-const float SYSTEM_CURRENT_MA = 150.0f;        // Estimated consumption at 100Hz (WiFi + sensors + processing)
+const float SYSTEM_CURRENT_MA = 140.0f;        // Estimated consumption at 50Hz (WiFi + sensors + processing)
 
 // Battery data variables
 uint16_t level;                               // Battery level (% - 101=Charging, 102=USB)
@@ -114,6 +115,10 @@ const int NUM_BUTTONS = sizeof(BUTTON_PINS) / sizeof(BUTTON_PINS[0]);
 
 bool button_state[NUM_BUTTONS];               // Current state of each button
 bool buttons_changed = false;                 // Change detection cache
+#endif
+
+#ifdef PING
+const int PING_RATE_MS = 1000;                 // Ping message interval (ms)
 #endif
 
 // ================================
@@ -168,7 +173,7 @@ void connectWiFi() {
     Serial.printf("> OSC Port: %d\n", udpPort);
     Serial.printf("> OSC Path: %s/%d", BASE_ADDRESS, DEVICE_INDEX);
     
-    // WiFi.setSleep(false);  // Uncomment to disable WiFi modem sleep (+20mA power cost)
+    WiFi.setSleep(false);  // Uncomment to disable WiFi modem sleep (+20mA power cost)
     
     udp.begin(0);
     return;
@@ -293,6 +298,18 @@ void sendOSC() {
     }
     any_data_to_send = true;
     buttons_changed = false;  // Reset flag after adding to bundle
+  }
+  #endif
+  
+  #ifdef PING
+  static unsigned long last_ping = 0;
+  unsigned long now = millis();
+  
+  if (now - last_ping >= PING_RATE_MS) {
+    snprintf(address, sizeof(address), "%s/%d/ping", BASE_ADDRESS, DEVICE_INDEX);
+    bundle.add(address).add(1);
+    any_data_to_send = true;
+    last_ping = now;
   }
   #endif
   

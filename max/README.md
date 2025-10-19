@@ -4,7 +4,7 @@ Max/MSP patch for receiving and processing real-time sensor data from CodeCell.
 
 ## Overview
 
-This patch receives quaternion rotation, acceleration, battery status, and button data from CodeCell at up to 50Hz.
+This patch receives quaternion rotation, acceleration, battery status, button data, and ping heartbeats from CodeCell.
 
 ## Requirements
 
@@ -69,6 +69,14 @@ This patch receives quaternion rotation, acceleration, battery status, and butto
 ```
 - **Type:** Integer 0 or 1
 - **state:** 0 = Released, 1 = Pressed
+
+### Ping/Heartbeat
+```
+/codecell/1/ping 1
+```
+- **Type:** Integer (always 1)
+- **Rate:** 1Hz (every 1000ms)
+- **Purpose:** Device activity monitoring, connection status
 
 ## Patch Structure
 
