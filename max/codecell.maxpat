@@ -14,25 +14,12 @@
 		"gridsize" : [ 15.0, 15.0 ],
 		"boxes" : [ 			{
 				"box" : 				{
-					"id" : "obj-20",
-					"maxclass" : "newobj",
-					"numinlets" : 2,
-					"numoutlets" : 2,
-					"outlettype" : [ "", "" ],
-					"patching_rect" : [ 133.0, 268.0, 60.0, 22.0 ],
-					"text" : "zl.change"
-				}
-
-			}
-, 			{
-				"box" : 				{
 					"id" : "obj-19",
 					"linecount" : 3,
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 1081.0, 424.0, 106.0, 47.0 ],
-					"presentation_linecount" : 4,
 					"text" : "PING\n\nDefault = 1000 ms"
 				}
 
@@ -378,14 +365,6 @@
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-20", 0 ],
-					"midpoints" : [ 90.5, 255.0, 142.5, 255.0 ],
-					"source" : [ "obj-11", 1 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
 					"destination" : [ "obj-21", 0 ],
 					"midpoints" : [ 48.5, 222.0, 48.5, 222.0 ],
 					"source" : [ "obj-11", 0 ]
@@ -397,6 +376,14 @@
 					"destination" : [ "obj-3", 0 ],
 					"midpoints" : [ 258.5, 255.0, 774.5, 255.0 ],
 					"source" : [ "obj-11", 5 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-34", 0 ],
+					"midpoints" : [ 90.5, 255.0, 142.5, 255.0 ],
+					"source" : [ "obj-11", 1 ]
 				}
 
 			}
@@ -421,13 +408,6 @@
 					"destination" : [ "obj-5", 0 ],
 					"midpoints" : [ 342.5, 255.0, 1090.5, 255.0 ],
 					"source" : [ "obj-11", 7 ]
-				}
-
-			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-34", 0 ],
-					"source" : [ "obj-20", 0 ]
 				}
 
 			}
