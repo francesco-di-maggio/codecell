@@ -110,7 +110,7 @@ ip addr show
 
 ### Example Output
 ```
-CodeCell v1.1.0
+CodeCell v1.1.1
 Connecting to WiFi...
 Connected to WiFi: YourNetworkName
 IP address: 192.168.1.42
@@ -149,9 +149,9 @@ E (2717) i2c.master: I2C transaction unexpected nack detected
 ```
 E (xxxxx) i2c.master: I2C transaction timeout detected
 ```
-**Should NOT occur in v1.1.0+.** If you see this:
+**Should NOT occur in current version.** If you see this:
 1. Check you're using latest firmware version
-2. Verify `SENSOR_RATE_HZ` and `SENDER_RATE_HZ` are properly configured
+2. Verify `SENSOR_RATE_HZ` and `SENDER_RATE_MS` are properly configured
 3. Report as bug on GitHub if persistent
 
 ### Compilation Errors
@@ -192,7 +192,7 @@ In `codecell.ino`, comment/uncomment defines:
 
 ```cpp
 const int SENSOR_RATE_HZ = 50;   // I2C sensor reads (critical timing)
-const int SENDER_RATE_HZ = 50;   // Data transmission rate (independent)
+const int SENDER_RATE_MS = 20;   // Data transmission interval (20ms = 50Hz)
 ```
 
 **Lower rates = longer battery life:**
@@ -258,8 +258,8 @@ if (myCodeCell.Run(SENSOR_RATE_HZ)) {
   readSensors();
 }
 
-// Data transmission - independent timing at SENDER_RATE_HZ  
-if (now - last_send >= (1000 / SENDER_RATE_HZ)) {
+// Data transmission - independent timing at SENDER_RATE_MS
+if (now - last_send >= SENDER_RATE_MS) {
   sendSensors();
 }
 ```
@@ -305,9 +305,7 @@ Reduces transmission overhead and power consumption while maintaining responsive
 
 ## Version Information
 
-**Current:** v1.1.0 (2025-10-18)
-
-See [CHANGELOG.md](../CHANGELOG.md) for complete version history and technical details.
+See [CHANGELOG.md](../CHANGELOG.md) for version history and technical details.
 
 ## Advanced Topics
 
@@ -327,18 +325,6 @@ Comment out `#define OSC` and implement alternative output (Serial, MIDI, BLE) i
 
 Serial, MIDI, and BLE protocols are planned for future releases.
 
-## Resources
-
-- **CodeCell Hardware:** https://www.microbots.io/products/codecell
-- **CodeCell Library:** https://github.com/microbots-io/codecell
-- **ESP32-C3 Datasheet:** https://www.espressif.com/en/products/socs/esp32-c3
-- **BNO085 Datasheet:** https://www.ceva-dsp.com/product/bno080-085/
-- **OSC Protocol:** http://opensoundcontrol.org/
-
-## Contributing
-
-Issues and pull requests welcome on GitHub!
-
 ## License
 
-MIT License - Francesco Di Maggio
+See [LICENSE](LICENSE) for full license details.

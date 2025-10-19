@@ -1,6 +1,11 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+## [1.1.1] - 2025-10-19
+
+### Changed
+- Increased sensor read rate from 50Hz to 100Hz to match BNO085 internal rate
+- Removed separate sender timing - now sends immediately after each sensor read
+- Reordered initialization: WiFi connects before sensor initialization
 
 ## [1.1.0] - 2025-10-18
 

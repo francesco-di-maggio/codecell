@@ -209,20 +209,13 @@ The included `codecell.maxpat` provides a basic template. Customize it for your 
 - Build gesture recognition
 - Create interactive installations
 
-## Resources
-
-- **OSC Protocol:** http://opensoundcontrol.org/
-- **Max/MSP Documentation:** https://docs.cycling74.com/
-- **CNMAT Externals:** https://github.com/CNMAT/CNMAT-Externs
-- **Firmware Source:** `/arduino/codecell/`
-
-## License
-
-MIT License - Francesco Di Maggio
-
 ## Support
 
 For issues with:
 - **Firmware:** See main [README.md](../README.md)
 - **Max patch:** Open issues on GitHub
 - **Hardware:** https://www.microbots.io/
+
+## License
+
+See [LICENSE](LICENSE) for full license details.

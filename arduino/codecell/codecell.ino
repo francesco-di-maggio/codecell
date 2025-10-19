@@ -20,8 +20,8 @@
 // ================================
 // VERSION INFORMATION
 // ================================
-const char* FIRMWARE_VERSION = "1.1.0";
-const char* BUILD_DATE = "2025-10-18";
+const char* FIRMWARE_VERSION = "1.1.1";
+const char* BUILD_DATE = "2025-10-19";
 const char* AUTHOR = "Francesco Di Maggio";
 
 // ================================
@@ -30,7 +30,7 @@ const char* AUTHOR = "Francesco Di Maggio";
 #define QUAT                    // Quaternion rotation data (qw, qx, qy, qz)
 #define ACCEL                   // Linear acceleration (x, y, z)
 #define BATTERY                 // Battery level, voltage, power state (and runtime estimate)
-#define BUTTONS                 // Button inputs
+// #define BUTTONS                 // Button inputs
 
 // ================================
 // OUTPUT PROTOCOLS - Enable/Disable
@@ -42,13 +42,7 @@ const char* AUTHOR = "Francesco Di Maggio";
 // ================================
 const int DEVICE_INDEX = 1;                    // Device ID for OSC addressing
 const char* BASE_ADDRESS = "/codecell";        // OSC base address
-const int SENSOR_RATE_HZ = 50;                 // Sensor reading rate (Hz)
-const int SENDER_RATE_HZ = 50;                 // Network transmission rate (Hz)
-
-// ================================
-// TIMING INTERVALS (milliseconds)  
-// ================================
-// All sensor timing controlled by myCodeCell.Run() frequency
+const int SENSOR_RATE_HZ = 100;                // Sensor reading rate (Hz)
 
 // ================================
 // NETWORK CONFIGURATION
@@ -59,8 +53,8 @@ const int udpPort = SECRET_OUTPORT;            // UDP port from secrets.h
 // ================================
 // FUNCTION DECLARATIONS
 // ================================
-void initSensors();
 void connectWiFi();
+void initSensors();
 void readSensors();
 void sendSensors();
 
@@ -103,40 +97,8 @@ bool accel_changed = false;                    // Change detection cache
 #endif
 
 #ifdef BATTERY
-// Battery specifications (change to match your battery!)
-const int BATTERY_CAPACITY_MAH = 150;          // LiPo battery capacity in mAh
-
-/* POWER CONSUMPTION ANALYSIS (variable rates):
- * Base System Components:
- * - ESP32-C3 WiFi active: ~90mA
- * - BNO085 IMU sensor: ~12mA  
- * - CodeCell board overhead: ~8mA
- * - Peripherals & safety margin: ~10mA
- * - Processing overhead: Variable based on rate
- * 
- * Rate-Specific Calculations:
- * - 20Hz: ~8mA processing (20Hz × 1.6ms = 3.2% duty cycle) = 120mA total
- * - 25Hz: ~10mA processing (25Hz × 1.6ms = 4% duty cycle) = 125mA total
- * - 30Hz: ~12mA processing (30Hz × 1.6ms = 4.8% duty cycle) = 130mA total  
- * - 40Hz: ~15mA processing (40Hz × 1.6ms = 6.4% duty cycle) = 135mA total
- * - 50Hz: ~18mA processing (50Hz × 1.6ms = 8% duty cycle) = 140mA total
- * 
- * Runtime Examples with 150mAh battery:
- * - 20Hz (120mA): 150/120 = 1.25 decimal hours = 1h 15min
- * - 25Hz (125mA): 150/125 = 1.20 decimal hours = 1h 12min
- * - 30Hz (130mA): 150/130 = 1.15 decimal hours = 1h 9min
- * - 50Hz (140mA): 150/140 = 1.07 decimal hours = 1h 4min (CURRENT SETTING)
- * - 100Hz (150mA): 150/150 = 1.00 decimal hours = 1h 0min
- * 
- * Runtime Format Conversion (hh.mm):
- * Device displays runtime in custom hh.mm format where:
- * - Decimal hours: battery_mAh ÷ current_mA (e.g., 150 ÷ 125 = 1.20)
- * - Extract hours: hours = (int)decimal_hours (e.g., 1)
- * - Extract minutes: minutes = (decimal_part × 60) (e.g., 0.20 × 60 = 12)
- * - Display format: hours + (minutes ÷ 100) (e.g., 1 + 12 ÷ 100 = 1.12)
- * - Result: 1.12 = 1 hour 12 minutes runtime remaining
- */
-const float SYSTEM_CURRENT_MA = 140.0f;       // Estimated consumption at 50Hz
+const int BATTERY_CAPACITY_MAH = 150;          // LiPo battery capacity (change to match yours)
+const float SYSTEM_CURRENT_MA = 150.0f;        // Estimated consumption at 100Hz (WiFi + sensors + processing)
 
 // Battery data variables
 uint16_t level;                               // Battery level (% - 101=Charging, 102=USB)
@@ -159,39 +121,66 @@ bool buttons_changed = false;                 // Change detection cache
 // ================================  
 void setup() {
   Serial.begin(115200);
-  delay(1000);
   
   Serial.printf("\n================================\n");
   Serial.printf("CodeCell v%s\n", FIRMWARE_VERSION);
   Serial.printf("Build Date: %s\n", BUILD_DATE);
   Serial.printf("Author: %s\n", AUTHOR);
-  Serial.printf("================================\n\n");
-  
-  Serial.printf("Initializing system...");
-  
-  initSensors();
-  connectWiFi();
+  Serial.printf("================================\n");
 
-  Serial.printf("System ready!\n\n");
-  Serial.printf("================================\n\n");
+  Serial.printf("\nInitializing system...\n\n");
+
+  connectWiFi();
+  initSensors();
+
+  Serial.printf("\nSystem ready!\n");
+  Serial.printf("\n================================\n\n");
 }
 
 // ================================
-// MAIN LOOP - Read sensors & stream OSC
+// MAIN LOOP - Read sensors & stream data
 // ================================
 void loop() {
-  // Decouple sensor reads from network sends to prevent I2C timeouts
-  
   if (myCodeCell.Run(SENSOR_RATE_HZ)) {
     readSensors();
+    sendSensors();
+  }
+}
+
+// ================================
+// WIFI FUNCTIONS
+// ================================
+void connectWiFi() {
+  Serial.printf("Connecting to %s", SECRET_SSID);
+  WiFi.begin(SECRET_SSID, SECRET_PASSWORD);
+  
+  // Wait for connection with configurable timeout
+  unsigned long startTime = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - startTime < 20000) {
+    delay(500);
+    Serial.printf(".");
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.printf("\n\n> CONNECTED!\n");
+    Serial.printf("> %s\n\n", WiFi.localIP().toString().c_str());
+    Serial.printf("IP Address: %s\n", SECRET_IP);
+    Serial.printf("> OSC Port: %d\n", udpPort);
+    Serial.printf("> OSC Path: %s/%d", BASE_ADDRESS, DEVICE_INDEX);
+    
+    // WiFi.setSleep(false);  // Uncomment to disable WiFi modem sleep (+20mA power cost)
+    
+    udp.begin(0);
+    return;
   }
   
-  static unsigned long last_send = 0;
-  unsigned long now = millis();
+  Serial.printf("\n> FAILED!\n\n");
+  Serial.printf("Please check WiFi credentials and network, then restart device.\n");
+  Serial.printf("System halted - power cycle to retry.\n");
   
-  if (now - last_send >= (1000 / SENDER_RATE_HZ)) {
-    sendSensors();
-    last_send = now;
+  // Halt system - standby until WiFi connection is fixed
+  while(1) {
+    delay(5000);
   }
 }
 
@@ -211,51 +200,18 @@ void initSensors() {
   sensors += MOTION_LINEAR_ACC;
   #endif
   
-  // Initialize BNO085 sensor system if any motion sensors are enabled
+  // Initialize sensors
   if (sensors > 0) {
     myCodeCell.Init(sensors);
   }
   
   #ifdef BUTTONS
+  // Initialize buttons
   for (int i = 0; i < NUM_BUTTONS; i++) {
     pinMode(BUTTON_PINS[i], INPUT_PULLUP);
     button_state[i] = false;
   }
   #endif
-}
-
-// ================================
-// WIFI FUNCTIONS
-// ================================
-void connectWiFi() {
-  Serial.printf("\nConnecting to %s", SECRET_SSID);
-  WiFi.begin(SECRET_SSID, SECRET_PASSWORD);
-  
-  // Wait for connection with configurable timeout
-  unsigned long startTime = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - startTime < 20000) {
-    delay(500);
-    Serial.printf(".");
-  }
-
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.printf("\n\n> CONNECTED!\n");
-    Serial.printf("> %s\n\n", WiFi.localIP().toString().c_str());
-    Serial.printf("IP Address: %s\n", SECRET_IP);
-    Serial.printf("> OSC Port: %d\n", udpPort);
-    Serial.printf("> OSC Path: %s/%d\n\n", BASE_ADDRESS, DEVICE_INDEX);
-    udp.begin(0);
-    return;
-  }
-  
-  Serial.printf("\n> FAILED!\n\n");
-  Serial.printf("Please check WiFi credentials and network, then restart device.\n");
-  Serial.printf("System halted - power cycle to retry.\n");
-  
-  // Halt system - standby until WiFi connection is fixed
-  while(1) {
-    delay(5000);
-  }
 }
 
 // ================================

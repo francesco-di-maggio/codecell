@@ -25,11 +25,9 @@ Real-time sensor streaming from CodeCell (ESP32-C3 + BNO085).
 
 ### Firmware
 - Quaternion streaming with sign continuity (no orientation flips)
-- I2C timeout protection via decoupled sensor/network timing
+- 100Hz sensor rate matched to BNO085 internal rate
 - Change-based transmission for efficient bandwidth usage
-- 50Hz real-time performance (20ms cycle time)
 - Battery monitoring with runtime estimation
-- Configurable rates (sensor and transmission independent)
 - OSC over WiFi protocol (MIDI, BLE, Serial support planned)
 
 ### Hardware
@@ -55,7 +53,7 @@ Real-time sensor streaming from CodeCell (ESP32-C3 + BNO085).
 - Default Port: UDP 8000
 - Protocol: OSC bundles (multiple messages per packet)
 - Address Pattern: `/codecell/DEVICE_INDEX/{stream}`
-- Rate: Up to 50Hz (change-based, actual rate varies with movement)
+- Rate: 100Hz sensor read, change-based transmission (actual rate varies with movement)
 
 ## Documentation
 
@@ -96,25 +94,21 @@ codecell/
 └── LICENSE                          # MIT License
 ```
 
-## Power Consumption
+## Power Consumption Estimates
 
 | Rate | Current Draw | Runtime (150mAh) |
 |------|--------------|------------------|
 | 20Hz | 120mA | 1h 15min |
 | 25Hz | 125mA | 1h 12min |
 | 30Hz | 130mA | 1h 9min |
-| 50Hz | 140mA | 1h 4min (default) |
+| 50Hz | 140mA | 1h 4min |
 | 100Hz | 150mA | 1h 0min |
-
-Adjust `SENSOR_RATE_HZ` in firmware to balance latency vs battery life.
 
 ## Troubleshooting
 
 ### Common Issues
 - No data received: Check WiFi connection and IP address in `secrets.h`
-- I2C errors: Normal at boot (~2.7s), should not occur during operation
 - Choppy data: Move closer to WiFi router, reduce interference
-- Battery drains fast: Lower transmission rate or increase change thresholds
 
 Detailed troubleshooting: See [arduino/README.md](arduino/README.md#troubleshooting)
 
@@ -125,14 +119,3 @@ See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 ## License
 
 See [LICENSE](LICENSE) for full license details.
-
-## Resources
-
-- CodeCell Hardware: https://www.microbots.io/products/codecell
-- CodeCell Library: https://github.com/microbots-io/codecell
-- OSC Specification: http://opensoundcontrol.org/
-- Max/MSP: https://cycling74.com/
-
----
-
-Version 1.1.0 | Last Updated: October 18, 2025
