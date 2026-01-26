@@ -23,16 +23,22 @@
 #include "secrets.h" // Note: Configure your network settings here!
 
 // ================================
+// GLOBAL OBJECTS FROM CODECELL LIBRARY
+// ================================
+// (BNO085 Motion object is internal to CodeCell library)
+
+// ================================
 // VERSION INFORMATION
 // ================================
-const char* FIRMWARE_VERSION = "1.1.1-rawIMU";
+const char* FIRMWARE_VERSION = "1.1.1-raw-imu";
 const char* BUILD_DATE = "2025-10-19";
 const char* AUTHOR = "Francesco Di Maggio";
 
 // ================================
 // SENSORS - Enable/Disable
 // ================================
-#define QUAT                    // Quaternion rotation data (qw, qx, qy, qz)
+// #define QUAT                    // Quaternion rotation data (qw, qx, qy, qz)
+// #define EULER                   // Euler angles (roll, pitch, yaw) with boundary wrapping
 #define ACCEL                   // Linear acceleration (x, y, z)
 #define BATTERY                 // Battery level, voltage, power state (and runtime estimate)
 // #define BUTTONS                 // Button inputs
@@ -70,6 +76,9 @@ void sendOSC();
 #ifdef QUAT
 void readQuat();
 #endif
+#ifdef EULER
+void readEuler();
+#endif
 #ifdef ACCEL
 void readAccel();
 #endif
@@ -93,6 +102,10 @@ CodeCell myCodeCell;
 float qw = 0.0, qx = 0.0, qy = 0.0, qz = 0.0;  // Quaternion components (w, x, y, z)
 #endif
 
+#ifdef EULER
+float roll = 0.0, pitch = 0.0, yaw = 0.0;      // Euler angles (degrees, 0-360°)
+#endif
+
 #ifdef ACCEL  
 const float ACCEL_NOISE_DEADZONE = 0.5f;       // Noise floor for idle filtering (m/s²)
 float x = 0.0, y = 0.0, z = 0.0;               // Linear acceleration (m/s²)
@@ -103,19 +116,19 @@ const int BATTERY_CAPACITY_MAH = 150;          // LiPo battery capacity (change 
 const float SYSTEM_CURRENT_MA = 140.0f;        // Estimated consumption at 50Hz (WiFi + sensors + processing)
 
 // Battery data variables
-uint16_t level;                               // Battery level (% - 101=Charging, 102=USB)
-uint16_t voltage;                             // Battery voltage (mV or 0xFFFF for invalid states)
-uint8_t power;                                // Power state (0=Battery, 1=USB, 2=Init, 3=Low, 4=Charged, 5=Charging)
-float runtime;                                // Runtime estimate in hh.mm format (-1.0 for invalid states)
-bool battery_changed = false;                 // Change detection cache
+uint16_t level;                                // Battery level (% - 101=Charging, 102=USB)
+uint16_t voltage;                              // Battery voltage (mV or 0xFFFF for invalid states)
+uint8_t power;                                 // Power state (0=Battery, 1=USB, 2=Init, 3=Low, 4=Charged, 5=Charging)
+float runtime;                                 // Runtime estimate in hh.mm format (-1.0 for invalid states)
+bool battery_changed = false;                  // Change detection cache
 #endif
 
 #ifdef BUTTONS
 const int BUTTON_PINS[] = {5, 6};
 const int NUM_BUTTONS = sizeof(BUTTON_PINS) / sizeof(BUTTON_PINS[0]);
 
-bool button_state[NUM_BUTTONS];               // Current state of each button
-bool buttons_changed = false;                 // Change detection cache
+bool button_state[NUM_BUTTONS];                // Current state of each button
+bool buttons_changed = false;                  // Change detection cache
 #endif
 
 #ifdef PING
@@ -173,9 +186,7 @@ void connectWiFi() {
     Serial.printf("IP Address: %s\n", SECRET_IP);
     Serial.printf("> OSC Port: %d\n", udpPort);
     Serial.printf("> OSC Path: %s/%d", BASE_ADDRESS, DEVICE_INDEX);
-    
-    // WiFi.setSleep(false);  // Test with/without - may not be needed with consistent 50Hz timing
-    
+        
     udp.begin(0);
     return;
   }
@@ -196,8 +207,8 @@ void connectWiFi() {
 void initSensors() {
   int sensors = 0;
   
-  // Add quaternion rotation sensor
-  #ifdef QUAT
+  // Add rotation sensor (used by both quaternion and Euler)
+  #if defined(QUAT) || defined(EULER)
   sensors += MOTION_ROTATION;
   #endif
   
@@ -209,6 +220,9 @@ void initSensors() {
   // Initialize sensors
   if (sensors > 0) {
     myCodeCell.Init(sensors);
+  }
+  else {
+    myCodeCell.Init(LIGHT);
   }
   
   #ifdef BUTTONS
@@ -227,6 +241,10 @@ void readSensors() {
   // Read all sensors - data reading and processing
   #ifdef QUAT
   readQuat();
+  #endif
+  
+  #ifdef EULER
+  readEuler();
   #endif
   
   #ifdef ACCEL
@@ -252,19 +270,21 @@ void sendSensors() {
 #ifdef OSC
 void sendOSC() {
   OSCBundle bundle;
-  char address[64];
-  bool any_data_to_send = false;
+  char address[128];
   
   #ifdef QUAT
   snprintf(address, sizeof(address), "%s/%d/quat", BASE_ADDRESS, DEVICE_INDEX);
   bundle.add(address).add(qw).add(qx).add(qy).add(qz);
-  any_data_to_send = true;
+  #endif
+  
+  #ifdef EULER
+  snprintf(address, sizeof(address), "%s/%d/euler", BASE_ADDRESS, DEVICE_INDEX);
+  bundle.add(address).add(roll).add(pitch).add(yaw);
   #endif
   
   #ifdef ACCEL
   snprintf(address, sizeof(address), "%s/%d/accel", BASE_ADDRESS, DEVICE_INDEX);
   bundle.add(address).add(x).add(y).add(z);
-  any_data_to_send = true;
   #endif
   
   #ifdef BATTERY
@@ -280,7 +300,6 @@ void sendOSC() {
     
     snprintf(address, sizeof(address), "%s/%d/runtime", BASE_ADDRESS, DEVICE_INDEX);
     bundle.add(address).add(runtime);
-    any_data_to_send = true;
     battery_changed = false;  // Reset flag after adding to bundle
   }
   #endif
@@ -291,7 +310,6 @@ void sendOSC() {
       snprintf(address, sizeof(address), "%s/%d/button/%d", BASE_ADDRESS, DEVICE_INDEX, i + 1);
       bundle.add(address).add(button_state[i] ? 1.0f : 0.0f);
     }
-    any_data_to_send = true;
     buttons_changed = false;  // Reset flag after adding to bundle
   }
   #endif
@@ -303,18 +321,14 @@ void sendOSC() {
   if (now - last_ping >= PING_RATE_MS) {
     snprintf(address, sizeof(address), "%s/%d/ping", BASE_ADDRESS, DEVICE_INDEX);
     bundle.add(address).add(1);
-    any_data_to_send = true;
     last_ping = now;
   }
   #endif
   
-  // Only send bundle if there's actually data to send
-  if (any_data_to_send) {
-    udp.beginPacket(targetIP, udpPort);
-    bundle.send(udp);
-    udp.endPacket();
-    bundle.empty();
-  }
+  udp.beginPacket(targetIP, udpPort);
+  bundle.send(udp);
+  udp.endPacket();
+  bundle.empty();
 }
 #endif
 
@@ -331,18 +345,58 @@ void readQuat() {
   myCodeCell.Motion_RotationVectorRead(qw, qx, qy, qz);
   
   // Static variables for sign continuity
-  static float qw_sign_ref = 0.0f, qx_sign_ref = 0.0f, qy_sign_ref = 0.0f, qz_sign_ref = 0.0f;
+  static float qw_sign = 1.0f, qx_sign = 0.0f, qy_sign = 0.0f, qz_sign = 0.0f;
   
-  // Apply sign continuity to prevent quaternion flips (skip if first reading with all zeros)
-  if (qw_sign_ref || qx_sign_ref || qy_sign_ref || qz_sign_ref) {
-    float dot = qw*qw_sign_ref + qx*qx_sign_ref + qy*qy_sign_ref + qz*qz_sign_ref;
-    if (dot < 0.0f) {
-      qw = -qw; qx = -qx; qy = -qy; qz = -qz;
-    }
+  // Apply sign continuity: flip sign if dot product is negative
+  // This prevents jumps between q and -q (which represent the same rotation)
+  float dot = qw*qw_sign + qx*qx_sign + qy*qy_sign + qz*qz_sign;
+  
+  if (dot < 0.0f) {
+    qw = -qw; qx = -qx; qy = -qy; qz = -qz;
   }
   
   // Update sign reference for next comparison
-  qw_sign_ref = qw; qx_sign_ref = qx; qy_sign_ref = qy; qz_sign_ref = qz;
+  qw_sign = qw; qx_sign = qx; qy_sign = qy; qz_sign = qz;
+}
+#endif
+
+// ================================
+// EULER ANGLE READING
+// ================================
+#ifdef EULER
+void readEuler() {
+  // Read raw Euler angle data
+  myCodeCell.Motion_RotationRead(roll, pitch, yaw);
+  
+  // Static variables for continuity (similar to quaternion approach)
+  static float roll_prev = 0.0f, pitch_prev = 0.0f, yaw_prev = 0.0f;
+  
+  // Apply continuity correction for each angle
+  // Detect boundary crossings and correct them
+  
+  // Roll continuity correction
+  if ((roll - roll_prev) > 180.0f) {
+    roll -= 360.0f;
+  } else if ((roll - roll_prev) < -180.0f) {
+    roll += 360.0f;
+  }
+  
+  // Pitch continuity correction
+  if ((pitch - pitch_prev) > 180.0f) {
+    pitch -= 360.0f;
+  } else if ((pitch - pitch_prev) < -180.0f) {
+    pitch += 360.0f;
+  }
+  
+  // Yaw continuity correction
+  if ((yaw - yaw_prev) > 180.0f) {
+    yaw -= 360.0f;
+  } else if ((yaw - yaw_prev) < -180.0f) {
+    yaw += 360.0f;
+  }
+  
+  // Update previous values for next comparison
+  roll_prev = roll; pitch_prev = pitch; yaw_prev = yaw;
 }
 #endif
 
@@ -412,7 +466,6 @@ bool readBattery() {
 bool readButtons() {
   // Change detection
   static bool button_last_sent[NUM_BUTTONS] = {false};
-  bool any_button_changed = false;
   
   // Use pinRead() function for direct pin access
   for (int i = 0; i < NUM_BUTTONS; i++) {
@@ -421,10 +474,10 @@ bool readButtons() {
     
     if (button_state[i] != button_last_sent[i]) {
       button_last_sent[i] = button_state[i];
-      any_button_changed = true;
+      return true;  // Changed - should transmit
     }
   }
   
-  return any_button_changed;  // True if any button changed
+  return false;  // No change - skip transmission
 }
 #endif

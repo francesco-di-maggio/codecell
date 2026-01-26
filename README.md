@@ -25,6 +25,7 @@ Real-time sensor streaming from CodeCell (ESP32-C3 + BNO085).
 
 ### Firmware
 - Quaternion streaming with sign continuity (no orientation flips)
+- Linear acceleration data (gravity-compensated)
 - Adjustable sensor rate in Hz (default: 50Hz)
 - Change-based transmission for efficient bandwidth usage
 - Battery monitoring with runtime estimation

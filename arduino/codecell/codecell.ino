@@ -20,8 +20,8 @@
 // ================================
 // VERSION INFORMATION
 // ================================
-const char* FIRMWARE_VERSION = "1.1.1";
-const char* BUILD_DATE = "2025-10-19";
+const char* FIRMWARE_VERSION = "1.1.2";
+const char* BUILD_DATE = "2025-10-20";
 const char* AUTHOR = "Francesco Di Maggio";
 
 // ================================
@@ -85,7 +85,7 @@ CodeCell myCodeCell;
 // SENSOR CONFIGURATION & DATA
 // ================================
 #ifdef QUAT
-const float QUAT_CHANGE_THRESHOLD = 0.01f;     // Quaternion change detection threshold (smooth motion vs drift balance)
+const float QUAT_CHANGE_THRESHOLD = 0.02f;     // Quaternion change detection threshold (smooth motion vs drift balance)
 float qw = 0.0, qx = 0.0, qy = 0.0, qz = 0.0;  // Quaternion components (w, x, y, z)
 bool quat_changed = false;                     // Change detection cache
 #endif
@@ -179,7 +179,7 @@ void connectWiFi() {
     return;
   }
   
-  Serial.printf("\n> FAILED!\n\n");
+  Serial.printf("\n\n> FAILED!\n\n");
   Serial.printf("Please check WiFi credentials and network, then restart device.\n");
   Serial.printf("System halted - power cycle to retry.\n");
   
@@ -332,36 +332,38 @@ void sendOSC() {
 // ================================
 #ifdef QUAT
 bool readQuat() {
-  // Read raw quaternion data
+  // Read quaternion from sensor
   myCodeCell.Motion_RotationVectorRead(qw, qx, qy, qz);
   
-  // Static variables for continuity and change detection  
-  static float qw_sign_ref = 0.0f, qx_sign_ref = 0.0f, qy_sign_ref = 0.0f, qz_sign_ref = 0.0f;
-  static float qw_last_sent = 0.0f, qx_last_sent = 0.0f, qy_last_sent = 0.0f, qz_last_sent = 0.0f;
+  // Sign continuity reference (updated every frame)
+  static float qw_sign = 1.0f, qx_sign = 0.0f, qy_sign = 0.0f, qz_sign = 0.0f;
   
-  // Apply sign continuity to prevent quaternion flips (skip if first reading with all zeros)
-  if (qw_sign_ref || qx_sign_ref || qy_sign_ref || qz_sign_ref) {
-    float dot = qw*qw_sign_ref + qx*qx_sign_ref + qy*qy_sign_ref + qz*qz_sign_ref;
-    if (dot < 0.0f) {
-      qw = -qw; qx = -qx; qy = -qy; qz = -qz;
-    }
+  // Change detection reference (updated only when sending)
+  static float qw_last_sent = 1.0f, qx_last_sent = 0.0f, qy_last_sent = 0.0f, qz_last_sent = 0.0f;
+
+  // Apply sign continuity: flip sign if dot product is negative
+  // This prevents jumps between q and -q (which represent the same rotation)
+  float dot = qw*qw_sign + qx*qx_sign + qy*qy_sign + qz*qz_sign;
+  
+  if (dot < 0.0f) {
+    qw = -qw; qx = -qx; qy = -qy; qz = -qz;
   }
   
-  // Update sign reference for next comparison
-  qw_sign_ref = qw; qx_sign_ref = qx; qy_sign_ref = qy; qz_sign_ref = qz;
+  // Update sign reference for next frame
+  qw_sign = qw; qx_sign = qx; qy_sign = qy; qz_sign = qz;
   
-  // Change detection with distance-based threshold
-  float distance = (qw-qw_last_sent)*(qw-qw_last_sent) + 
-                   (qx-qx_last_sent)*(qx-qx_last_sent) + 
-                   (qy-qy_last_sent)*(qy-qy_last_sent) + 
-                   (qz-qz_last_sent)*(qz-qz_last_sent);
+  // Compute Euclidean distance in quaternion space
+  float dist_sq = (qw - qw_last_sent) * (qw - qw_last_sent) +
+                  (qx - qx_last_sent) * (qx - qx_last_sent) +
+                  (qy - qy_last_sent) * (qy - qy_last_sent) +
+                  (qz - qz_last_sent) * (qz - qz_last_sent);
   
-  if (distance > QUAT_CHANGE_THRESHOLD * QUAT_CHANGE_THRESHOLD) {
+  if (dist_sq > QUAT_CHANGE_THRESHOLD * QUAT_CHANGE_THRESHOLD) {
     qw_last_sent = qw; qx_last_sent = qx; qy_last_sent = qy; qz_last_sent = qz;
-    return true;  // Changed - should transmit
+    return true;   // Changed - should transmit
   }
   
-  return false;  // No change - skip transmission
+  return false;    // No change - skip transmission
 }
 #endif
 
@@ -443,7 +445,6 @@ bool readBattery() {
 bool readButtons() {
   // Change detection
   static bool button_last_sent[NUM_BUTTONS] = {false};
-  bool any_button_changed = false;
   
   // Use pinRead() function for direct pin access
   for (int i = 0; i < NUM_BUTTONS; i++) {
@@ -452,10 +453,10 @@ bool readButtons() {
     
     if (button_state[i] != button_last_sent[i]) {
       button_last_sent[i] = button_state[i];
-      any_button_changed = true;
+      return true;  // Changed - should transmit
     }
   }
   
-  return any_button_changed;  // True if any button changed
+  return false;  // No change - skip transmission
 }
 #endif
