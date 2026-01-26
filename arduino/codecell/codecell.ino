@@ -173,8 +173,6 @@ void connectWiFi() {
     Serial.printf("> OSC Port: %d\n", udpPort);
     Serial.printf("> OSC Path: %s/%d", BASE_ADDRESS, DEVICE_INDEX);
     
-    WiFi.setSleep(false);  // Uncomment to disable WiFi modem sleep (+20mA power cost)
-    
     udp.begin(0);
     return;
   }
