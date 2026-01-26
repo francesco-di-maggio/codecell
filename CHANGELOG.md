@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.2] - 2025-10-20
+
+### Changed
+- Initialized identity quaternion (1,0,0,0) to ensure valid dot product from first frame
+- Separated references for sign continuity (every frame) vs change detection (on transmission)
+
 ## [1.1.1] - 2025-10-19
 
 ### Added

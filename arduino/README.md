@@ -181,8 +181,8 @@ fatal error: secrets.h: No such file or directory
 In `codecell.ino`, comment/uncomment defines:
 
 ```cpp
-#define QUAT      // Quaternion rotation data
-#define ACCEL     // Linear acceleration
+#define QUAT      // Quaternion rotation data (qw, qx, qy, qz)
+#define ACCEL     // Linear acceleration (x, y, z)
 #define BATTERY   // Power monitoring
 #define BUTTONS   // GPIO button inputs
 #define OSC       // OSC over WiFi (default protocol)
