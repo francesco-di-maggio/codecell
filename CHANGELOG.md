@@ -10,7 +10,6 @@
 
 ### Added
 - Ping/heartbeat functionality for device activity monitoring
-- WiFi.setSleep(false) configuration to disable modem sleep
 
 ### Changed
 - Removed separate sender timing - now sends immediately after each sensor read
