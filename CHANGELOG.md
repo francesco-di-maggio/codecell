@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.1.3] - 2026-01-27
+## [1.1.2] - 2026-01-27
 
 ### Added
 - Light sensor support (proximity, white, ambient) via /codecell/1/light
@@ -18,17 +18,13 @@
 - Renamed connectWiFi() to initWiFi() for consistency with initSensors()
 - WiFi/UDP initialization now unconditional (not wrapped in #ifdef OSC)
 - All features follow consistent #define + readXXX() pattern
+- Initialized identity quaternion (1,0,0,0) to ensure valid dot product from first frame
+- Separated references for sign continuity (every frame) vs change detection (on transmission)
 
 ### Fixed
 - Battery voltage smoothing with exponential moving average eliminates noise
 - Loop structure cleaned up with proper spacing and indentation
 - All #ifdef wrappers consistent across features
-
-## [1.1.2] - 2025-10-20
-
-### Changed
-- Initialized identity quaternion (1,0,0,0) to ensure valid dot product from first frame
-- Separated references for sign continuity (every frame) vs change detection (on transmission)
 
 ## [1.1.1] - 2025-10-19
 
