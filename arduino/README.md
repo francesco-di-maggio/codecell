@@ -5,8 +5,12 @@ Real-time sensor streaming firmware for CodeCell (ESP32-C3 + BNO085 IMU).
 ## Quick Start
 
 1. **Install Prerequisites** (see below)
-2. **Copy and configure** `secrets.template.h` to `secrets.h` (for WiFi)
-3. **Open** `codecell.ino` in Arduino IDE
+2. **Configure WiFi:**
+   - Navigate to `arduino/`
+   - Copy `secrets.template.h` to `secrets.h`
+   - Edit `secrets.h` with your WiFi and OSC settings
+   - (This file is shared across all sketches)
+3. **Open** `codecell/codecell.ino` in Arduino IDE
 4. **Select board** settings (see below)
 5. **Upload** to CodeCell
 
@@ -61,19 +65,24 @@ Select these settings in **Tools** menu:
 ## Network Configuration
 
 ### 1. Create secrets.h
+
+Copy the template into your project folder and rename it:
+
 ```bash
-cp secrets.template.h secrets.h
+# From arduino directory
+cp secrets.template.h codecell/secrets.h
 ```
 
-### 2. Edit secrets.h
+### 2. Edit codecell/secrets.h
+
 ```cpp
 // WiFi credentials
-const char* ssid = "YourNetworkName";
-const char* password = "YourPassword";
+const char* SECRET_SSID = "YourNetworkName";
+const char* SECRET_PASSWORD = "YourPassword";
 
 // Target device (computer receiving data)
-IPAddress receiverIP(192, 168, 1, 100);  // Your computer's IP
-const unsigned int receiverPort = 8000;   // Default: 8000
+#define SECRET_IP 192, 168, 1, 100  // Your computer's IP
+const unsigned int SECRET_OUTPORT = 8000;     // Default: 8000
 ```
 
 ### Finding Your Computer's IP Address

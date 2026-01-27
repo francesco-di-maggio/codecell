@@ -12,6 +12,7 @@
 
 // OSC target configuration
 #define SECRET_IP "192.168.1.100"    // Target IP address
-#define SECRET_OUTPORT 8000           // OSC UDP port
+#define SECRET_OUTPORT 8000           // OSC UDP send port
+#define SECRET_INPORT  9000           // OSC UDP receive port
 
 #endif
