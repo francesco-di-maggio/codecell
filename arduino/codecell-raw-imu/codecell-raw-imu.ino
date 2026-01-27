@@ -20,7 +20,7 @@
 #include <CodeCell.h>
 
 // ================================
-#include "secrets.h" // Note: Configure your network settings here!
+#include "../secrets.h"
 
 // ================================
 // GLOBAL OBJECTS FROM CODECELL LIBRARY

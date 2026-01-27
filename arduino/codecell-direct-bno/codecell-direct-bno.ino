@@ -20,7 +20,7 @@
 #include <OSCBundle.h>
 
 // ================================
-#include "secrets.h"
+#include "../secrets.h"
 
 // ================================
 // VERSION INFORMATION
