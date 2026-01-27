@@ -22,7 +22,7 @@
 // ================================
 // VERSION INFORMATION
 // ================================
-const char* FIRMWARE_VERSION = "1.1.3";
+const char* FIRMWARE_VERSION = "1.1.2";
 const char* BUILD_DATE = "2026-01-27";
 const char* AUTHOR = "Francesco Di Maggio";
 
