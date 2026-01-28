@@ -1,10 +1,10 @@
 /*
- * CodeCell - Real-time sensor streaming
- * Quaternions, acceleration, battery, buttons
+ * CodeCell over OSC
+ * Quaternions, acceleration, battery, lights, buttons
  * 
  * Hardware: ESP32-C3 + BNO085 9-DOF IMU (CodeCell board)
  * Repository: https://github.com/francesco-di-maggio/codecell
- * Protocol: OSC over WiFi (MIDI, BLE, Serial support planned)
+ * Protocol: OSC over WiFi
  * 
  * Configure secrets.h for network settings
  */
@@ -49,7 +49,7 @@ const char* AUTHOR = "Francesco Di Maggio";
 const int DEVICE_INDEX = 1;                    // Device ID for OSC addressing
 const char* BASE_ADDRESS = "/codecell";        // OSC base address
 const int SENSOR_RATE_HZ = 50;                 // Sensor reading rate (Hz)
-const int LED_BRIGHTNESS = 10;                  // LED brightness (0=off, 10=full) - set to 0 to save battery
+const int LED_BRIGHTNESS = 5;                  // LED brightness (0=off, 10=full) - set to 0 to save battery
 
 // ================================
 // NETWORK CONFIGURATION
@@ -79,7 +79,8 @@ bool readQuat();
 bool readAccel();
 #endif
 #ifdef BATTERY
-bool readBattery();
+bool readPower();
+bool readVoltage();
 #endif
 #ifdef BUTTONS
 bool readButtons();
@@ -100,15 +101,15 @@ bool readIP();
 // ================================
 // GLOBAL OBJECTS & VARIABLES
 // ================================
-WiFiUDP udpSend;                                // UDP for sending OSC
-WiFiUDP udpReceive;                             // UDP for receiving OSC
+WiFiUDP udpSend;                               // UDP for sending OSC
+WiFiUDP udpReceive;                            // UDP for receiving OSC
 CodeCell myCodeCell;
 
 // ================================
 // SENSOR CONFIGURATION & DATA
 // ================================
 #ifdef QUAT
-const float QUAT_CHANGE_THRESHOLD = 0.02f;     // Quaternion change detection threshold (smooth motion vs drift balance)
+const float QUAT_CHANGE_THRESHOLD = 0.01f;     // Quaternion change detection threshold
 float qw = 1.0, qx = 0.0, qy = 0.0, qz = 0.0;  // Quaternion components (w, x, y, z)
 bool quat = false;                             // Change detection flag
 #endif
@@ -121,29 +122,30 @@ bool accel = false;                            // Change detection flag
 #endif
 
 #ifdef BATTERY
-const uint16_t BATTERY_VOLTAGE_CHANGE_MV = 100; // Voltage change threshold (mV)
-const float BATTERY_VOLTAGE_SMOOTHING = 0.25f;  // Smoothing factor (0.0=none, 1.0=max, typical 0.1-0.5)
+const uint16_t VOLTAGE_CHANGE_MV = 25;         // Voltage change threshold (mV)
+const float VOLTAGE_SMOOTHING = 0.02f;         // Smoothing factor (0.0=higher smoothing, 1.0=lower smoothing)
 
 // Battery data variables
-uint16_t voltage = 0;                         // Battery voltage (mV)
-uint8_t power = 0;                            // Power state (0=Battery, 1=USB, 2=Init, 3=Low, 4=Charged, 5=Charging)
-bool battery = false;                         // Change detection flag
+uint16_t v = 0;                                // Battery voltage (mV)
+uint8_t p = 0;                                 // Power state (0=Battery, 1=USB, 2=Init, 3=Low, 4=Charged, 5=Charging)
+bool power = false;                            // Power state change flag
+bool voltage = false;                          // Voltage change flag
 #endif
 
 #ifdef BUTTONS
 const int BUTTON_PINS[] = {5, 6};
 const int NUM_BUTTONS = sizeof(BUTTON_PINS) / sizeof(BUTTON_PINS[0]);
 
-bool button_state[NUM_BUTTONS] = {false};     // Current state of each button
-bool buttons = false;                         // Change detection flag
+bool button_state[NUM_BUTTONS] = {false};      // Current state of each button
+bool buttons = false;                          // Change detection flag
 #endif
 
 #ifdef LIGHTS
-const uint16_t LIGHT_CHANGE_THRESHOLD = 10;   // Light sensor change threshold
-uint16_t proximity = 0;                       // Proximity reading
-uint16_t white = 0;                           // White light reading
-uint16_t ambient = 0;                         // Ambient light reading
-bool light = false;                           // Change detection flag
+const uint16_t LIGHT_CHANGE_THRESHOLD = 10;    // Light sensor change threshold
+uint16_t proximity = 0;                        // Proximity reading
+uint16_t white = 0;                            // White light reading
+uint16_t ambient = 0;                          // Ambient light reading
+bool light = false;                            // Change detection flag
 #endif
 
 #ifdef PING
@@ -196,8 +198,6 @@ void loop() {
   }
   
   sendSensors();
-  
-  delay(1);  // Yield to WiFi stack, prevent watchdog issues
 }
 
 // ================================
@@ -214,29 +214,25 @@ void initWiFi() {
     Serial.printf(".");
   }
 
-  if (WiFi.status() == WL_CONNECTED) {
-    WiFi.setSleep(false);  // Disable WiFi modem sleep to prevent I2C interference
-    
+  if (WiFi.status() == WL_CONNECTED) {    
     Serial.printf("\n\n> CONNECTED!\n");
     Serial.printf("> %s\n\n", WiFi.localIP().toString().c_str());
     Serial.printf("IP Address: %s\n", SECRET_IP);
-    Serial.printf("> OSC Port: %d\n", udpSendPort);
+    Serial.printf("> OSC Send Port: %d\n", udpSendPort);
     Serial.printf("> OSC Path: %s/%d", BASE_ADDRESS, DEVICE_INDEX);
     
     udpSend.begin(0);
     udpReceive.begin(udpReceivePort);
-    Serial.printf("\n> OSC listening on port %d\n", udpReceivePort);
+    Serial.printf("\n> OSC Receive Port: %d\n", udpReceivePort);
+  } else {
+    Serial.printf("\n\n> FAILED!\n\n");
+    Serial.printf("Please check WiFi credentials and network, then restart device.\n");
+    Serial.printf("System halted - power cycle to retry.\n");
     
-    return;
-  }
-  
-  Serial.printf("\n\n> FAILED!\n\n");
-  Serial.printf("Please check WiFi credentials and network, then restart device.\n");
-  Serial.printf("System halted - power cycle to retry.\n");
-  
-  // Halt system - standby until WiFi connection is fixed
-  while(1) {
-    delay(5000);
+    // Halt system - standby until WiFi connection is fixed
+    while(1) {
+      delay(5000);
+    }
   }
 }
 
@@ -288,7 +284,8 @@ void readSensors() {
   #endif
   
   #ifdef BATTERY
-  battery = readBattery();
+  power = readPower();
+  voltage = readVoltage();
   #endif
   
   #ifdef BUTTONS
@@ -352,14 +349,18 @@ void sendOSC() {
   #endif
   
   #ifdef BATTERY
-  if (battery) {
+  if (power) {
     snprintf(address, sizeof(address), "%s/%d/power", BASE_ADDRESS, DEVICE_INDEX);
-    bundle.add(address).add(power);
-    
-    snprintf(address, sizeof(address), "%s/%d/voltage", BASE_ADDRESS, DEVICE_INDEX);
-    bundle.add(address).add(voltage / 1000.0f);
+    bundle.add(address).add(p);
     has_data = true;
-    battery = false;
+    power = false;
+  }
+  
+  if (voltage) {
+    snprintf(address, sizeof(address), "%s/%d/voltage", BASE_ADDRESS, DEVICE_INDEX);
+    bundle.add(address).add(v / 1000.0f);
+    has_data = true;
+    voltage = false;
   }
   #endif
   
@@ -522,31 +523,32 @@ bool readAccel() {
 // BATTERY READING
 // ================================
 #ifdef BATTERY
-bool readBattery() {
-  static uint8_t power_last_sent = 0xFF;
-  static uint16_t voltage_last_sent = 0;
-  static uint16_t voltage_smoothed = 0;
-
-  power = myCodeCell.PowerStateRead();
-  uint16_t v = myCodeCell.BatteryVoltageRead();
+bool readPower() {
+  static uint8_t last_sent = 0xFF;
   
-  if (voltage_smoothed == 0) {
-    voltage_smoothed = v;
-  } else {
-    voltage_smoothed = voltage_smoothed * (1.0f - BATTERY_VOLTAGE_SMOOTHING) + v * BATTERY_VOLTAGE_SMOOTHING;
-  }
-  voltage = voltage_smoothed;
-
-  if (power != power_last_sent) {
-    power_last_sent = power;
+  p = myCodeCell.PowerStateRead();
+  
+  if (p != last_sent) {
+    last_sent = p;
     return true;
   }
   
-  if (abs((int)voltage - (int)voltage_last_sent) >= BATTERY_VOLTAGE_CHANGE_MV) {
-    voltage_last_sent = voltage;
+  return false;
+}
+
+bool readVoltage() {
+  static uint16_t last_sent = 0;
+  static uint16_t smoothed = 0;
+  
+  uint16_t raw = myCodeCell.BatteryVoltageRead();
+  smoothed = (smoothed == 0) ? raw : smoothed * (1.0f - VOLTAGE_SMOOTHING) + raw * VOLTAGE_SMOOTHING;
+  v = smoothed;
+  
+  if (abs((int)v - (int)last_sent) >= VOLTAGE_CHANGE_MV) {
+    last_sent = v;
     return true;
   }
-
+  
   return false;
 }
 #endif

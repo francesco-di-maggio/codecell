@@ -1,18 +1,18 @@
-# Arduino build files
+# Arduino
 *.bin
 *.elf
 *.hex
 *.map
 
-# IDE files
-.DS_Store
+# IDE
 .vscode/
 .idea/
 
-# Secrets and credentials
+# Credentials
 secrets.h
 
-# OS
-.Spotlight-V100
-.Trashes
-Thumbs.db
+# Development reference libraries (not tracked)
+.dev/
+
+# Max/MSP
+.DS_Store
