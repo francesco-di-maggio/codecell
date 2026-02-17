@@ -16,8 +16,8 @@
 
 // ================================
 // NETWORK CONFIGURATION
-// Note: Copy arduino/secrets.template.h to arduino/secrets.h and configure your WiFi/OSC settings
-#include "../secrets.h"
+// Note: Copy arduino/secrets.template.h to arduino/codecell/secrets.h and configure your WiFi/OSC settings
+#include "secrets.h"
 
 // ================================
 // VERSION INFORMATION
