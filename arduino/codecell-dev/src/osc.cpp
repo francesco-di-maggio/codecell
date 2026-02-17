@@ -18,11 +18,11 @@
  *   ip      — IP address string, every 10s
  *   uptime  — seconds since boot (int), 1 Hz
  *
- * Incoming commands:
- *   /codecell/{id}/reboot        — restarts the device
- *   /codecell/{id}/led 0         — LED off
- *   /codecell/{id}/led 1         — LED back to automatic battery status
- *   /codecell/{id}/led r g b [b] — manual RGB, optional brightness (0-10)
+ * Incoming commands (point-to-point to device IP — no namespace prefix needed):
+ *   /reboot        — restarts the device
+ *   /led 0         — LED off
+ *   /led 1         — LED back to automatic battery status
+ *   /led r g b [b] — manual RGB, optional brightness (0-10)
  */
 
 // Local headers first (Adafruit standard)
@@ -185,20 +185,16 @@ static void addPeriodicMessages(OSCBundle& bundle) {
 }
 
 static void handleOSCMessage(OSCMessage& msg) {
-  // All incoming commands are scoped to /codecell/{id}/ to avoid
-  // responding to unrelated OSC traffic on the same network.
-  char cmdReboot[OSC_ADDRESS_MAX_LEN];
-  char cmdLed[OSC_ADDRESS_MAX_LEN];
-  buildAddress(cmdReboot, sizeof(cmdReboot), "reboot");
-  buildAddress(cmdLed,    sizeof(cmdLed),    "led");
-
-  if (msg.fullMatch(cmdReboot)) {
+  // Incoming commands use short addresses — no namespace prefix needed.
+  // Commands are sent point-to-point to a specific device IP,
+  // so /codecell/{id}/ disambiguation is not required.
+  if (msg.fullMatch("/reboot")) {
     Serial.println(">> Received reboot command");
     ESP.restart();
   }
 
   #ifdef LED
-  if (msg.fullMatch(cmdLed)) {
+  if (msg.fullMatch("/led")) {
     if (msg.size() == 1) {
       int value = msg.getInt(0);
       if (value == 0) {

@@ -102,13 +102,15 @@ All addresses follow the pattern `/codecell/{DEVICE_INDEX}/{sensor}`.
 
 ### Incoming (Max/MSP → device)
 
+Sent point-to-point to the device IP — no namespace prefix needed.
+
 | Address | Arguments | Effect |
 |---------|-----------|--------|
-| `/codecell/1/reboot` | — | Restarts the device |
-| `/codecell/1/led` | `0` | LED off |
-| `/codecell/1/led` | `1` | LED back to automatic battery status |
-| `/codecell/1/led` | `r g b` | Manual RGB (0–255 each) |
-| `/codecell/1/led` | `r g b brightness` | Manual RGB + brightness (0–10) |
+| `/reboot` | — | Restarts the device |
+| `/led` | `0` | LED off |
+| `/led` | `1` | LED back to automatic battery status |
+| `/led` | `r g b` | Manual RGB (0–255 each) |
+| `/led` | `r g b brightness` | Manual RGB + brightness (0–10) |
 
 ## Max/MSP
 
