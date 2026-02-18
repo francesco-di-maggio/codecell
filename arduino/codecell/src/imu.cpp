@@ -34,10 +34,13 @@ static Adafruit_BNO08x bno08x(BNO08X_RESET);
 static sh2_SensorValue_t sensorValue;
 
 // Current values
+#if defined(QUAT) || defined(EULER)
+static float signW = 1.0f, signX = 0.0f, signY = 0.0f, signZ = 0.0f;
+#endif
+
 #ifdef QUAT
 static float qw = 1.0f, qx = 0.0f, qy = 0.0f, qz = 0.0f;
 static float prevQw = 1.0f, prevQx = 0.0f, prevQy = 0.0f, prevQz = 0.0f;
-static float signW = 1.0f, signX = 0.0f, signY = 0.0f, signZ = 0.0f;
 #endif
 
 #ifdef EULER
@@ -165,22 +168,19 @@ void imuUpdate() {
   switch (sensorValue.sensorId) {
     #if defined(QUAT) || defined(EULER)
     case SH2_ARVR_STABILIZED_RV: {
+      // Read and apply continuity correction once — shared by QUAT and EULER
+      float w = sensorValue.un.arvrStabilizedRV.real;
+      float x = sensorValue.un.arvrStabilizedRV.i;
+      float y = sensorValue.un.arvrStabilizedRV.j;
+      float z = sensorValue.un.arvrStabilizedRV.k;
+      applyContinuity(w, x, y, z);
+
       #ifdef QUAT
-      qw = sensorValue.un.arvrStabilizedRV.real;
-      qx = sensorValue.un.arvrStabilizedRV.i;
-      qy = sensorValue.un.arvrStabilizedRV.j;
-      qz = sensorValue.un.arvrStabilizedRV.k;
-      applyContinuity(qw, qx, qy, qz);
+      qw = w; qx = x; qy = y; qz = z;
       #endif
-      
+
       #ifdef EULER
-      quaternionToEuler(
-        sensorValue.un.arvrStabilizedRV.real,
-        sensorValue.un.arvrStabilizedRV.i,
-        sensorValue.un.arvrStabilizedRV.j,
-        sensorValue.un.arvrStabilizedRV.k,
-        &euler
-      );
+      quaternionToEuler(w, x, y, z, &euler);
       #endif
       break;
     }
