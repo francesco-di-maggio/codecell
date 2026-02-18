@@ -12,8 +12,8 @@
 #define SECRET_PASSWORD "your_wifi_password"
 
 // OSC target configuration
-#define SECRET_IP "192.168.1.100"    // Target IP address
-#define SECRET_OUTPORT 8000           // OSC UDP send port
-#define SECRET_INPORT  9000           // OSC UDP receive port
+#define SECRET_IP      "192.168.1.100"  // OSC host IP (receiver)
+#define SECRET_OUTPORT 9000             // Port host listens on (device sends here)
+#define SECRET_INPORT  8000             // Port device listens on (host sends here)
 
 #endif

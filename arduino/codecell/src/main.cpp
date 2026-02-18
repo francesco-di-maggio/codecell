@@ -68,7 +68,7 @@ void codecellSetup() {
 
   // Banner
   Serial.printf("\n════════════════════════════════════════════\n");
-  Serial.printf("CodeCell-dev\n");
+  Serial.printf("CodeCell\n");
   Serial.printf("Version: %s\n", FIRMWARE_VERSION);
   Serial.printf("Build Date: %s\n", BUILD_DATE);
   Serial.printf("Board: ");

@@ -221,17 +221,17 @@ static void handleOSCMessage(OSCMessage& msg) {
 // ================================
 // Public API
 // ================================
-bool oscInit(const IPAddress& remoteIp, uint16_t remotePort, uint16_t localPort) {
+bool oscInit(const char* remoteIp, uint16_t remotePort, uint16_t localPort) {
   if (!wifiIsConnected()) {
     Serial.println("WiFi not connected!");
     return false;
   }
-  
-  Serial.printf("   Sending OSC to %s:%d\n", remoteIp.toString().c_str(), remotePort);
-  Serial.printf("   Listening on port %d\n", localPort);
-  
-  targetIP = remoteIp;
+
+  targetIP.fromString(remoteIp);
   targetPort = remotePort;
+
+  Serial.printf("   Sending OSC to %s:%d\n", remoteIp, remotePort);
+  Serial.printf("   Listening on port %d\n", localPort);
   
   udpReceive.begin(localPort);
   

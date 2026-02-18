@@ -1,5 +1,5 @@
 /*
- * CodeCell Dev
+ * CodeCell
  * ESP32-C3/C6 + Adafruit BNO085 + VCNL4040
  */
 

@@ -49,9 +49,9 @@ Edit `secrets.h` with your network details:
 ```cpp
 #define SECRET_SSID     "your-network"
 #define SECRET_PASSWORD "your-password"
-#define SECRET_IP       IPAddress(192, 168, 1, 100)  // Max/MSP host IP
-#define SECRET_OUTPORT  9000   // Port Max/MSP listens on
-#define SECRET_INPORT   8000   // Port codecell listens on (for commands)
+#define SECRET_IP       "192.168.1.100"  // OSC host IP (receiver)
+#define SECRET_OUTPORT  9000             // Port host listens on (device sends here)
+#define SECRET_INPORT   8000             // Port device listens on (host sends here)
 ```
 
 ### Adding a Button
