@@ -1,13 +1,13 @@
-# codecell-dev
+# codecell
 
-Development firmware for CodeCell (ESP32-C3 / C6) using the Adafruit BNO085 library.
+Firmware for CodeCell (ESP32-C3 / C6) using the Adafruit BNO085 library.
 Streams sensor data to Max/MSP (or any OSC receiver) over WiFi.
 
 ## Structure
 
 ```
-codecell-dev/
-├── codecell-dev.ino   # Entry point: setup() and loop() only
+codecell/
+├── codecell.ino       # Entry point: setup() and loop() only
 ├── secrets.h          # WiFi credentials (gitignored — copy from secrets.template.h)
 └── src/
     ├── config.h       # Feature flags, hardware pins, and all tunable constants
@@ -118,7 +118,7 @@ Sent point-to-point to the device IP — no namespace prefix needed.
 [udpreceive 8000] → [route /codecell/1/quat /codecell/1/euler /codecell/1/accel]
 ```
 
-Full patch: [`max/codecell-dev.maxpat`](../../max/codecell-dev.maxpat)
+Full patch: [`max/codecell.maxpat`](../../max/codecell.maxpat)
 
 ## Hardware
 
