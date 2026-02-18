@@ -29,6 +29,10 @@ This is now the primary firmware on `main`; the CodeCell library sketch is archi
 - Unused variable removed: `savedBrightness` in `ledBlinkError()` (function never returns, value was never used)
 - `SH2_ARVR_STABILIZED_RV` report now guarded with `#if defined(QUAT) || defined(EULER)` (was enabled unconditionally)
 
+---
+
+> Versions 1.1.x below are based on the CodeCell library sketch, now archived on the `dev` branch.
+
 ## [1.1.2] - 2026-01-27
 
 ### Added

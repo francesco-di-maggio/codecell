@@ -47,7 +47,7 @@ All addresses: `/codecell/{DEVICE_INDEX}/{sensor}` (default index: 1)
 
 ## Documentation
 
-- [codecell-dev firmware](arduino/codecell-dev/README.md) — configuration, OSC reference, hardware pinout
+- [Firmware reference](arduino/codecell/README.md) — configuration, OSC reference, hardware pinout
 - [Changelog](CHANGELOG.md) — version history
 
 ## License
