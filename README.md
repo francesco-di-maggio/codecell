@@ -2,49 +2,26 @@
 
 Real-time sensor streaming from CodeCell (ESP32-C3 / C6 + BNO085) to Max/MSP over WiFi/OSC.
 
-## Tracks
-
-This repository has two firmware tracks:
-
-| Track | Folder | Library | Branch | Status |
-|-------|--------|---------|--------|--------|
-| **codecell** | `arduino/codecell/` | Official CodeCell library | `main` | Stable |
-| **codecell-dev** | `arduino/codecell-dev/` | Adafruit BNO085 + direct I2C | `dev` | Development |
-
-**codecell** uses the official [CodeCell library](https://github.com/unicell-lab/codecell) and targets production use.
-**codecell-dev** replaces it with the Adafruit BNO085 library and implements a fully modular `src/` architecture for development and experimentation.
-
 ## Contents
 
 ```
 codecell/
 ├── arduino/
-│   ├── codecell/          # Stable firmware (CodeCell library)
-│   └── codecell-dev/      # Development firmware (Adafruit library, modular src/)
+│   └── codecell/          # Firmware (Adafruit BNO085, modular src/)
 ├── max/
-│   ├── codecell.maxpat        # Max patch for codecell
-│   └── codecell-dev.maxpat    # Max patch for codecell-dev
+│   └── codecell.maxpat    # Max/MSP patch
 ├── CHANGELOG.md
 └── LICENSE
 ```
 
 ## Quick Start
 
-### codecell (stable, main branch)
-
-1. Install the [CodeCell library](https://github.com/unicell-lab/codecell) in Arduino IDE
-2. Copy `arduino/codecell/secrets.template.h` → `secrets.h` and fill in your network details
+1. Install libraries: `Adafruit BNO08x`, `CNMAT OSC`
+2. Copy `arduino/secrets.template.h` → `arduino/codecell/secrets.h` and fill in your network details
 3. Open `arduino/codecell/codecell.ino` and flash to your device
 4. Open `max/codecell.maxpat` in Max/MSP
 
-### codecell-dev (dev branch)
-
-1. Install libraries: `Adafruit BNO08x`, `CNMAT OSC`
-2. Copy `arduino/codecell-dev/secrets.template.h` → `secrets.h` and fill in your network details
-3. Open `arduino/codecell-dev/codecell-dev.ino` and flash
-4. Open `max/codecell-dev.maxpat` in Max/MSP
-
-See [arduino/codecell-dev/README.md](arduino/codecell-dev/README.md) for full configuration reference.
+See [arduino/codecell/README.md](arduino/codecell/README.md) for full configuration reference.
 
 ## OSC Data Format
 

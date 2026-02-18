@@ -2,8 +2,8 @@
 
 ## [1.2.1] - 2026-02-17
 
-Refactor of `codecell-dev` to a fully modular `src/` architecture.
-All changes are on the `dev` branch.
+Full rewrite to a modular `src/` architecture using the Adafruit BNO085 library.
+This is now the primary firmware on `main`; the CodeCell library sketch is archived on the `dev` branch.
 
 ### Added
 - `src/` folder structure: each module in its own `.h/.cpp` pair
@@ -11,8 +11,8 @@ All changes are on the `dev` branch.
 - `BUTTON_PINS {5, 6}` macro: button count derived automatically via `sizeof`; add a pin to add a button
 - `buttonCount()` public getter for external consumers (e.g. `osc.cpp`)
 - File header block comments on all `src/` files (purpose, hardware, conventions)
-- `arduino/codecell-dev/README.md` — full OSC reference, configuration guide, hardware pinout
-- Root `README.md` updated to document the two-track structure (`codecell` vs `codecell-dev`)
+- `arduino/codecell/README.md` — full OSC reference, configuration guide, hardware pinout
+- Root `README.md` updated to reflect single-track structure
 
 ### Changed
 - Replaced Adafruit library flat sketch with modular `src/` architecture (SRP throughout)
