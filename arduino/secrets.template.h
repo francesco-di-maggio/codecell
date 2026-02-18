@@ -1,6 +1,7 @@
 /*
  * Network Configuration Template
  * Copy to the sketch folder and rename to secrets.h
+ * Configure with your network settings
  */
 
 #ifndef SECRETS_H
