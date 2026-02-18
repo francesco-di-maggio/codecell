@@ -124,12 +124,12 @@
                                     "numinlets": 1,
                                     "numoutlets": 2,
                                     "outlettype": [ "", "" ],
-                                    "patching_rect": [ 44.0, 556.0, 85.0, 22.0 ],
+                                    "patching_rect": [ 44.0, 556.0, 81.0, 22.0 ],
                                     "saved_object_attributes": {
-                                        "filename": "peak-hold.js",
+                                        "filename": "peakhold.js",
                                         "parameter_enable": 0
                                     },
-                                    "text": "js peak-hold.js"
+                                    "text": "js peakhold.js"
                                 }
                             },
                             {
@@ -183,8 +183,8 @@
                             }
                         ]
                     },
-                    "patching_rect": [ 370.0, 580.0, 71.0, 22.0 ],
-                    "text": "p peak-hold"
+                    "patching_rect": [ 370.0, 580.0, 67.0, 22.0 ],
+                    "text": "p peakhold"
                 }
             },
             {
@@ -509,8 +509,7 @@
                     "numinlets": 2,
                     "numoutlets": 1,
                     "outlettype": [ "" ],
-                    "patching_rect": [ 390.0, 471.0, 158.0, 22.0 ],
-                    "text": "2836 177 264"
+                    "patching_rect": [ 390.0, 471.0, 158.0, 22.0 ]
                 }
             },
             {
@@ -703,8 +702,7 @@
                     "numinlets": 2,
                     "numoutlets": 1,
                     "outlettype": [ "" ],
-                    "patching_rect": [ 829.0, 389.0, 50.0, 22.0 ],
-                    "text": "0 39 36"
+                    "patching_rect": [ 829.0, 389.0, 50.0, 22.0 ]
                 }
             },
             {
