@@ -11,8 +11,9 @@
 # Credentials
 secrets.h
 
-# Development reference libraries (not tracked)
+# Development
 .dev/
 
 # Max/MSP
 .DS_Store
+max/Screenshot*.png
