@@ -9,7 +9,10 @@ codecell/
 ├── arduino/
 │   └── codecell/          # Firmware (Adafruit BNO085, modular src/)
 ├── max/
-│   └── codecell.maxpat    # Max/MSP patch
+│   ├── codecell.maxpat    # Max/MSP patch
+│   └── js/
+│       ├── energy.js      # RMS acceleration energy (leaky integrator)
+│       └── peakhold.js    # Peak-hold envelope follower with Schmitt trigger
 ├── CHANGELOG.md
 └── LICENSE
 ```

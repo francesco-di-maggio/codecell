@@ -1,4 +1,4 @@
-// peak-hold.js
+// peakhold.js
 // Peak-hold envelope follower. Input: scalar or accel list [ax ay az].
 //
 // Behaviour:
@@ -130,7 +130,7 @@ function calibrate() {
 }
 
 function print() {
-    post("--- peak-hold.js ---\n");
+    post("--- peakhold.js ---\n");
     post("attack:           " + attackTime    + " ms\n");
     post("release:          " + releaseTime   + " ms\n");
     post("stopdecay:        " + stopDecayTime + " ms\n");
