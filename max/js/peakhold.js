@@ -48,7 +48,7 @@ var stopThreshold = 0.05;
 var holdThreshold = 0.1;
 var sustainThreshold = 0.03;
 var sustainWindow = 50;
-var energyScale   = 0.75;
+var energyScale   = 1.0;
 var outputMin     = 0;
 var outputMax     = 1;
 

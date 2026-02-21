@@ -1,18 +1,19 @@
 // energy.js
-// RMS acceleration energy via leaky integrator (one-pole IIR lowpass on squared magnitude).
+// RMS acceleration energy via asymmetric leaky integrator.
+//
+// Uses separate attack and decay time constants for independent control:
+//   short attack  → snappy response to gesture onset
+//   long decay    → smooth release after gesture ends
 //
 // This is a raw, reactive energy measure — no hold, no envelope shaping.
-// Feed its output into peak-hold.js for gesture-level envelope behaviour.
+// Feed its output into peakhold.js for gesture-level envelope behaviour.
 //
 // INPUT:    list [ax ay az]  — linear acceleration in m/s² (gravity-compensated)
 // OUTPUT:   RMS energy       — mapped to outputrange
 //
-// The smoothing time constant controls how quickly the output reacts:
-//   short smoothing  → fast, noisy, tracks individual movement peaks
-//   long smoothing   → slow, stable, reflects average movement intensity
-//
 // MESSAGES:
-//   smoothing <ms>        — time constant of the leaky integrator
+//   attack <ms>           — time constant for rising energy (default 50ms)
+//   decay <ms>            — time constant for falling energy (default 300ms)
 //   noisefloor <float>    — RMS value subtracted before output (set at rest)
 //   scale <float>         — multiplier applied before output clamp
 //   outputrange <min> <max>
@@ -22,15 +23,16 @@
 inlets = 1;
 outlets = 1;
 
-var smoothingTime = 200;
-var noiseFloor    = 0.0;
-var energyScale   = 1.0;
-var outputMin     = 0;
-var outputMax     = 1;
+var attackTime  = 200;
+var decayTime   = 200;
+var noiseFloor  = 0.0;
+var energyScale = 1.0;
+var outputMin   = 0;
+var outputMax   = 1;
 
-var smoothedSq       = 0;  // leaky integrator state (mean square)
-var lastTime         = null;
-var currentRMS       = 0;
+var smoothedSq  = 0;
+var lastTime    = null;
+var currentRMS  = 0;
 
 function list() {
     var a = arrayfromargs(arguments);
@@ -44,8 +46,9 @@ function list() {
     var ax = a[0], ay = a[1], az = a[2];
     var sq = ax*ax + ay*ay + az*az;
 
-    // One-pole IIR lowpass on squared magnitude
-    var k = 1 - Math.exp(-dt / (smoothingTime / 1000.0));
+    // Asymmetric one-pole IIR: separate k for attack and decay
+    var tau = (sq > smoothedSq) ? attackTime : decayTime;
+    var k = 1 - Math.exp(-dt / (tau / 1000.0));
     smoothedSq += (sq - smoothedSq) * k;
 
     currentRMS = Math.sqrt(Math.max(0, smoothedSq));
@@ -54,9 +57,10 @@ function list() {
     outlet(0, output);
 }
 
-function smoothing(v)      { smoothingTime = Math.max(1, v); }
-function noisefloor(v)     { noiseFloor    = Math.max(0, v); }
-function scale(v)          { energyScale   = Math.max(0, v); }
+function attack(v)         { attackTime  = Math.max(1, v); }
+function decay(v)          { decayTime   = Math.max(1, v); }
+function noisefloor(v)     { noiseFloor  = Math.max(0, v); }
+function scale(v)          { energyScale = Math.max(0, v); }
 function outputrange(a, b) { outputMin = a; outputMax = b; }
 
 function calibrate() {
@@ -66,7 +70,8 @@ function calibrate() {
 
 function print() {
     post("--- energy.js ---\n");
-    post("smoothing:    " + smoothingTime + " ms\n");
+    post("attack:       " + attackTime + " ms\n");
+    post("decay:        " + decayTime + " ms\n");
     post("noisefloor:   " + noiseFloor.toFixed(3) + "\n");
     post("scale:        " + energyScale + "\n");
     post("outputrange:  " + outputMin + " " + outputMax + "\n");
