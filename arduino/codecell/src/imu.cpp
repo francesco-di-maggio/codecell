@@ -89,6 +89,7 @@ static void setReports() {
   #endif
 }
 
+#ifdef QUAT
 static void applyContinuity(float& w, float& x, float& y, float& z) {
   // Prevent q/-q flips (same rotation, different sign)
   float dot = w*signW + x*signX + y*signY + z*signZ;
@@ -97,6 +98,7 @@ static void applyContinuity(float& w, float& x, float& y, float& z) {
   }
   signW = w; signX = x; signY = y; signZ = z;
 }
+#endif
 
 static void applyDeadzone(float& value, float threshold) {
   if (abs(value) < threshold) {
@@ -175,9 +177,11 @@ void imuUpdate() {
   }
 }
 
+#ifdef QUAT
 void imuGetQuaternion(float& w, float& x, float& y, float& z) {
   w = qw; x = qx; y = qy; z = qz;
 }
+#endif
 
 #ifdef ACCEL
 void imuGetAccel(float& x, float& y, float& z) {
@@ -185,18 +189,20 @@ void imuGetAccel(float& x, float& y, float& z) {
 }
 #endif
 
+#ifdef QUAT
 bool imuQuaternionChanged() {
   float distSq = (qw - prevQw) * (qw - prevQw) +
                  (qx - prevQx) * (qx - prevQx) +
                  (qy - prevQy) * (qy - prevQy) +
                  (qz - prevQz) * (qz - prevQz);
-  
+
   bool changed = (distSq > QUAT_CHANGE_THRESHOLD * QUAT_CHANGE_THRESHOLD);
   if (changed) {
     prevQw = qw; prevQx = qx; prevQy = qy; prevQz = qz;
   }
   return changed;
 }
+#endif
 
 #ifdef ACCEL
 bool imuAccelChanged() {

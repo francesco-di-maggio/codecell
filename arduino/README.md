@@ -32,8 +32,8 @@ Install via Sketch → Include Library → Manage Libraries:
    #define SECRET_SSID     "your-network"
    #define SECRET_PASSWORD "your-password"
    #define SECRET_IP       "192.168.1.100"  // IP of OSC receiver
-   #define SECRET_OUTPORT  9000             // port receiver listens on
-   #define SECRET_INPORT   8000             // port device listens on
+   #define SECRET_OUTPORT  8000             // port receiver listens on
+   #define SECRET_INPORT   9000             // port device listens on
    ```
 3. Open `codecell/codecell.ino` in Arduino IDE
 4. Select board settings (see below)

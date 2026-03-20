@@ -14,7 +14,7 @@
 
 // OSC target configuration
 #define SECRET_IP      "192.168.1.100"  // IP of the OSC receiver (your computer)
-#define SECRET_OUTPORT 9000             // Port the receiver listens on
-#define SECRET_INPORT  8000             // Port this device listens on
+#define SECRET_OUTPORT 8000             // Port the receiver listens on
+#define SECRET_INPORT  9000             // Port this device listens on
 
 #endif

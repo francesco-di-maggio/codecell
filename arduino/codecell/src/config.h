@@ -16,10 +16,10 @@
 // ================================
 // FEATURE FLAGS
 // ================================
-#define QUAT        // Quaternion rotation data
-#define ACCEL       // Linear acceleration
+// #define QUAT        // Quaternion rotation data
+// #define ACCEL       // Linear acceleration
 #define BATTERY     // Battery monitoring
-#define LIGHT       // Light sensor (VCNL4040)
+// #define LIGHT       // Light sensor (VCNL4040)
 #define BUTTON      // Button inputs (GPIO 5, 6)
 #define PING        // Heartbeat messages (1Hz)
 #define IP          // IP address announcements

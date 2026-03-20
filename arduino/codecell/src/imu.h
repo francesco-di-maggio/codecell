@@ -13,13 +13,17 @@ bool imuInit();
 void imuUpdate();
 
 // Getters
+#ifdef QUAT
 void imuGetQuaternion(float& w, float& x, float& y, float& z);
+#endif
 #ifdef ACCEL
 void imuGetAccel(float& x, float& y, float& z);
 #endif
 
 // Change detection
+#ifdef QUAT
 bool imuQuaternionChanged();
+#endif
 #ifdef ACCEL
 bool imuAccelChanged();
 #endif
