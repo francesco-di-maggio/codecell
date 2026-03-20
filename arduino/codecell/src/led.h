@@ -1,6 +1,8 @@
 /*
  * LED Control
- * NeoPixel control with automatic battery status indication
+ *
+ * NeoPixel control with automatic battery status indication.
+ * Enable/disable via #define LED in config.h.
  */
 
 #ifndef LED_H
@@ -8,12 +10,15 @@
 
 #include <Arduino.h>
 
-// Public API
+#ifdef LED
+
 void ledInit();
-void ledUpdate();  // Update based on battery state
-void ledSet(uint8_t r, uint8_t g, uint8_t b);  // Manual control
+void ledUpdate();
+void ledSet(uint8_t r, uint8_t g, uint8_t b);
 void ledSetBrightness(uint8_t brightness);  // 0-10
-void ledSetAutomatic(bool automatic);  // true=battery status, false=manual
-void ledBlinkError();  // Infinite red blink (critical error)
+void ledSetAutomatic(bool automatic);
+void ledBlinkError();                        // infinite red blink, never returns
+
+#endif // LED
 
 #endif // LED_H

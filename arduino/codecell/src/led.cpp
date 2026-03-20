@@ -22,6 +22,8 @@
 #include "led.h"
 #include "config.h"
 
+#ifdef LED
+
 #ifdef BATTERY
 #include "battery.h"
 #endif
@@ -57,27 +59,13 @@ void ledUpdate() {
   uint8_t state = batteryGetPowerState();
   
   switch (state) {
-    case 0:  // POWER_BAT_RUN - Green
-      writeScaled(0, 255, 0);
-      break;
-    case 1:  // POWER_USB - Blue
-      writeScaled(0, 0, 255);
-      break;
-    case 2:  // POWER_INIT - Off
-      neopixelWrite(LED_PIN, 0, 0, 0);
-      break;
-    case 3:  // POWER_BAT_LOW - Red
-      writeScaled(255, 0, 0);
-      break;
-    case 4:  // POWER_BAT_FULL - Dim green
-      neopixelWrite(LED_PIN, 0, 1, 0);
-      break;
-    case 5:  // POWER_BAT_CHRG - Dim blue
-      neopixelWrite(LED_PIN, 0, 0, 1);
-      break;
-    default:
-      neopixelWrite(LED_PIN, 0, 0, 0);
-      break;
+    case POWER_BAT_RUN:  writeScaled(0, 255, 0);           break;  // green
+    case POWER_USB:      writeScaled(0, 0, 255);           break;  // blue
+    case POWER_BAT_LOW:  writeScaled(255, 0, 0);           break;  // red
+    case POWER_BAT_FULL: neopixelWrite(LED_PIN, 0, 1, 0);  break;  // dim green (bypasses brightness)
+    case POWER_BAT_CHRG: neopixelWrite(LED_PIN, 0, 0, 1);  break;  // dim blue  (bypasses brightness)
+    case POWER_INIT:
+    default:             neopixelWrite(LED_PIN, 0, 0, 0);  break;  // off
   }
   #endif
 }
@@ -104,3 +92,5 @@ void ledBlinkError() {
     delay(250);
   }
 }
+
+#endif // LED

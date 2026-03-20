@@ -5,8 +5,8 @@
  * Reports are re-enabled automatically if the sensor resets (e.g. power glitch).
  *
  * Sensor reports (enabled per feature flag):
- *   QUAT / EULER — SH2_ARVR_STABILIZED_RV at 5000 µs (200 Hz hardware, read on event)
- *   ACCEL        — SH2_LINEAR_ACCELERATION at 5000 µs (gravity-compensated)
+ *   QUAT  — SH2_ARVR_STABILIZED_RV at 5000 µs (200 Hz hardware, read on event)
+ *   ACCEL — SH2_LINEAR_ACCELERATION at 5000 µs (gravity-compensated)
  *
  * Quaternion continuity:
  *   The BNO085 can flip q to -q (same rotation, opposite sign).
@@ -34,18 +34,10 @@ static Adafruit_BNO08x bno08x(BNO08X_RESET);
 static sh2_SensorValue_t sensorValue;
 
 // Current values
-#if defined(QUAT) || defined(EULER)
-static float signW = 1.0f, signX = 0.0f, signY = 0.0f, signZ = 0.0f;
-#endif
-
 #ifdef QUAT
+static float signW = 1.0f, signX = 0.0f, signY = 0.0f, signZ = 0.0f;
 static float qw = 1.0f, qx = 0.0f, qy = 0.0f, qz = 0.0f;
 static float prevQw = 1.0f, prevQx = 0.0f, prevQy = 0.0f, prevQz = 0.0f;
-#endif
-
-#ifdef EULER
-static EulerAngles euler = {0.0f, 0.0f, 0.0f};
-static EulerAngles prevEuler = {0.0f, 0.0f, 0.0f};
 #endif
 
 #ifdef ACCEL
@@ -84,7 +76,7 @@ static void recoverI2CBus() {
 }
 
 static void setReports() {
-  #if defined(QUAT) || defined(EULER)
+  #ifdef QUAT
   if (!bno08x.enableReport(SH2_ARVR_STABILIZED_RV, 5000)) {
     Serial.println("  Sensor report failed!");
   }
@@ -95,17 +87,6 @@ static void setReports() {
     Serial.println("  Accel report failed!");
   }
   #endif
-}
-
-static void quaternionToEuler(float qr, float qi, float qj, float qk, EulerAngles* angles) {
-  float sqr = sq(qr);
-  float sqi = sq(qi);
-  float sqj = sq(qj);
-  float sqk = sq(qk);
-
-  angles->yaw = atan2(2.0f * (qi * qj + qk * qr), (sqi - sqj - sqk + sqr)) * RAD_TO_DEG;
-  angles->pitch = asin(-2.0f * (qi * qk - qj * qr) / (sqi + sqj + sqk + sqr)) * RAD_TO_DEG;
-  angles->roll = atan2(2.0f * (qj * qk + qi * qr), (-sqi - sqj + sqk + sqr)) * RAD_TO_DEG;
 }
 
 static void applyContinuity(float& w, float& x, float& y, float& z) {
@@ -166,22 +147,14 @@ void imuUpdate() {
   }
 
   switch (sensorValue.sensorId) {
-    #if defined(QUAT) || defined(EULER)
+    #ifdef QUAT
     case SH2_ARVR_STABILIZED_RV: {
-      // Read and apply continuity correction once — shared by QUAT and EULER
       float w = sensorValue.un.arvrStabilizedRV.real;
       float x = sensorValue.un.arvrStabilizedRV.i;
       float y = sensorValue.un.arvrStabilizedRV.j;
       float z = sensorValue.un.arvrStabilizedRV.k;
       applyContinuity(w, x, y, z);
-
-      #ifdef QUAT
       qw = w; qx = x; qy = y; qz = z;
-      #endif
-
-      #ifdef EULER
-      quaternionToEuler(w, x, y, z, &euler);
-      #endif
       break;
     }
     #endif
@@ -206,13 +179,11 @@ void imuGetQuaternion(float& w, float& x, float& y, float& z) {
   w = qw; x = qx; y = qy; z = qz;
 }
 
-void imuGetEuler(EulerAngles& angles) {
-  angles = euler;
-}
-
+#ifdef ACCEL
 void imuGetAccel(float& x, float& y, float& z) {
   x = ax; y = ay; z = az;
 }
+#endif
 
 bool imuQuaternionChanged() {
   float distSq = (qw - prevQw) * (qw - prevQw) +
@@ -227,16 +198,7 @@ bool imuQuaternionChanged() {
   return changed;
 }
 
-bool imuEulerChanged() {
-  bool changed = (abs(euler.yaw - prevEuler.yaw) >= EULER_CHANGE_THRESHOLD ||
-                  abs(euler.pitch - prevEuler.pitch) >= EULER_CHANGE_THRESHOLD ||
-                  abs(euler.roll - prevEuler.roll) >= EULER_CHANGE_THRESHOLD);
-  if (changed) {
-    prevEuler = euler;
-  }
-  return changed;
-}
-
+#ifdef ACCEL
 bool imuAccelChanged() {
   bool changed = (abs(ax - prevAx) >= ACCEL_CHANGE_THRESHOLD ||
                   abs(ay - prevAy) >= ACCEL_CHANGE_THRESHOLD ||
@@ -246,3 +208,4 @@ bool imuAccelChanged() {
   }
   return changed;
 }
+#endif

@@ -1,6 +1,6 @@
 /*
  * IMU Sensor (BNO085)
- * Quaternion, Euler angles, and linear acceleration
+ * Quaternion and linear acceleration
  */
 
 #ifndef IMU_H
@@ -8,25 +8,20 @@
 
 #include <Arduino.h>
 
-// Data structures
-struct EulerAngles {
-  float yaw;
-  float pitch;
-  float roll;
-};
-
 // Public API
 bool imuInit();
 void imuUpdate();
 
 // Getters
 void imuGetQuaternion(float& w, float& x, float& y, float& z);
-void imuGetEuler(EulerAngles& angles);
+#ifdef ACCEL
 void imuGetAccel(float& x, float& y, float& z);
+#endif
 
 // Change detection
 bool imuQuaternionChanged();
-bool imuEulerChanged();
+#ifdef ACCEL
 bool imuAccelChanged();
+#endif
 
 #endif // IMU_H

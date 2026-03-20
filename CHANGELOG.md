@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.2.3] - 2026-03-20
+
+### Removed
+- Euler angles: `EULER` flag, `/euler` OSC message, `imuGetEuler()`, `imuEulerChanged()`, `quaternionToEuler()`, `EulerAngles` struct, `EULER_CHANGE_THRESHOLD`
+
+### Fixed
+- `SH2_ARVR_STABILIZED_RV` report guard changed from `#if defined(QUAT) || defined(EULER)` to `#ifdef QUAT`
+- `imuGetAccel()` and `imuAccelChanged()` missing `#ifdef ACCEL` guards added
+- `imuGetQuaternion()` and `imuQuaternionChanged()` missing `#ifdef QUAT` guards added
+
+### Changed
+- `arduino/README.md`: updated OSC reference, feature flags, file structure, and compilation error table to reflect current state
+
+---
+
+## [1.2.2] - 2026-03-19
+
+### Fixed
+- Button edge detection: replaced single shared `changed` flag with per-button `changed[]` array; added `buttonChanged(index)` and `buttonClearChanged()` to the public API; added boot-state read to prevent false edges on startup
+- Redundant `pinMode(LED_PIN)` call removed from `codecellSetup()` — already set inside `ledInit()`
+- OSC receive: replaced byte-by-byte `fill()` loop with single buffer `fill(buf, len)` call for both bundle and single message parsing
+
+### Changed
+- `arduino/README.md`: merged two separate READMEs into one
+
+---
+
 ## [1.2.1] - 2026-02-17
 
 Full rewrite to a modular `src/` architecture using the Adafruit BNO085 library.

@@ -11,6 +11,7 @@
  * Outlet 0: float or list — scaled output value(s)
  *
  * Messages:
+ *   reset                  — restore all defaults, stop calibration
  *   start                  — begin calibration (resets bounds, tracks min/max live)
  *   stop                   — lock in calibrated range
  *   inputrange <min> <max> — set input range manually (applied to all channels)
@@ -30,11 +31,13 @@ var cal_max   = [];
 var input_min = [];
 var input_max = [];
 
-var output_min = -1.0;
-var output_max =  1.0;
-
 var default_input_min = -180.0;
 var default_input_max =  180.0;
+
+var default_output_min = -1.0;
+var default_output_max =  1.0;
+var output_min = default_output_min;
+var output_max = default_output_max;
 
 function ensureChannels(n) {
     while (cal_min.length < n) {
@@ -59,6 +62,18 @@ function processChannel(v, ch) {
         if (v > cal_max[ch]) { cal_max[ch] = v; input_max[ch] = v; }
     }
     return scaleValue(v, ch);
+}
+
+function reset() {
+    is_calibrating = 0;
+    output_min = default_output_min;
+    output_max = default_output_max;
+    for (var i = 0; i < input_min.length; i++) {
+        cal_min[i]   = 0.0;
+        cal_max[i]   = 0.0;
+        input_min[i] = default_input_min;
+        input_max[i] = default_input_max;
+    }
 }
 
 function start() {
@@ -87,7 +102,10 @@ function inputrange(mn, mx) {
 }
 
 function outputrange(mn, mx) {
-    if (arguments.length >= 2) { output_min = mn; output_max = mx; }
+    if (arguments.length >= 2) {
+        output_min = mn;
+        output_max = mx;
+    }
 }
 
 function msg_int(v) { msg_float(v); }

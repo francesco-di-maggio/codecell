@@ -9,20 +9,19 @@
 // ================================
 // VERSION
 // ================================
-#define FIRMWARE_VERSION "v1.2.1"
-#define BUILD_DATE "2026-02-17"
+#define FIRMWARE_VERSION "v1.2.3"
+#define BUILD_DATE "2026-03-20"
 #define AUTHOR "Francesco Di Maggio"
 
 // ================================
 // FEATURE FLAGS
 // ================================
 #define QUAT        // Quaternion rotation data
-#define EULER       // Euler angles (roll, pitch, yaw)
 #define ACCEL       // Linear acceleration
 #define BATTERY     // Battery monitoring
 #define LED         // LED control and status indication
 #define LIGHT       // Light sensor (VCNL4040)
-// #define BUTTON      // Button inputs (GPIO 5, 6)
+#define BUTTON      // Button inputs (GPIO 5, 6)
 #define PING        // Heartbeat messages (1Hz)
 #define IP          // IP address announcements
 #define UPTIME      // Uptime reporting
@@ -63,6 +62,7 @@
 // IMU: read every loop; output rate is controlled by the BNO085 report interval set in imu.cpp
 #define LIGHT_READ_RATE_HZ 50
 #define BATTERY_READ_RATE_HZ 5
+#define BUTTON_READ_RATE_HZ 50
 #define PING_RATE_MS 1000
 #define IP_RATE_MS 10000
 #define UPTIME_RATE_MS 1000
@@ -72,7 +72,6 @@
 // ================================
 // IMU
 #define QUAT_CHANGE_THRESHOLD 0.01f
-#define EULER_CHANGE_THRESHOLD 0.5f
 #define ACCEL_CHANGE_THRESHOLD 0.1f
 #define ACCEL_NOISE_DEADZONE 0.5f
 

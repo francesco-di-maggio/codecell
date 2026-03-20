@@ -2,7 +2,7 @@
  * WiFi Connection
  *
  * Station mode with automatic reconnection.
- * wifiInit() blocks until connected or WIFI_CONNECT_TIMEOUT_SEC elapses.
+ * wifiInit() reads credentials from secrets.h; blocks until connected or timeout.
  * After boot, setAutoReconnect handles drops in the background.
  *
  * Modem sleep:
@@ -12,38 +12,31 @@
 
 #include "wifi.h"
 #include "config.h"
+#include "secrets.h"
 #include <WiFi.h>
 
-// ================================
-// Public API
-// ================================
-bool wifiInit(const char* ssid, const char* password) {
-  Serial.print("Connecting to WiFi ");
+bool wifiInit() {
   WiFi.mode(WIFI_STA);
   WiFi.setAutoReconnect(true);  // Must be set before WiFi.begin(); handles runtime drops
-  WiFi.begin(ssid, password);
+  WiFi.begin(SECRET_SSID, SECRET_PASSWORD);
 
   // Wait for initial connection with a hard deadline.
   // setAutoReconnect handles drops after this point — this loop is boot-only.
   unsigned long deadline = millis() + (WIFI_CONNECT_TIMEOUT_SEC * 1000UL);
   while (WiFi.status() != WL_CONNECTED && millis() < deadline) {
     delay(WIFI_CONNECT_RETRY_MS);
-    Serial.print(".");
   }
 
   if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("\n\nWiFi connection failed!");
+    Serial.printf("%-40s[FAILED]\n", "Connecting to WiFi...");
     return false;
   }
-  
-  char connectMsg[64];
-  snprintf(connectMsg, sizeof(connectMsg), "Connected to: %s", ssid);
-  Serial.printf("\n\n%-40s[OK]\n", connectMsg);
-  Serial.printf("   IP Address: %s\n\n", WiFi.localIP().toString().c_str());
-  
-  // Disable modem sleep for low latency
-  // Power saving mode causes 100-300ms latency spikes
-  // Trade-off: ~50-100mA higher consumption for <10ms latency
+
+  Serial.printf("%-40s[OK]\n", "Connecting to WiFi...");
+  Serial.printf("   SSID:        %s\n", SECRET_SSID);
+  Serial.printf("   Assigned IP: %s\n\n", WiFi.localIP().toString().c_str());
+
+  // Disable modem sleep — power saving causes 100-300ms UDP latency spikes
   WiFi.setSleep(false);
 
   return true;
@@ -55,4 +48,16 @@ bool wifiIsConnected() {
 
 String wifiGetIP() {
   return WiFi.localIP().toString();
+}
+
+void wifiMonitor() {
+  static bool wasConnected = true;  // assume connected at boot; wifiInit() only returns on success
+  bool connected = wifiIsConnected();
+  if (!connected && wasConnected) {
+    Serial.println(">> WiFi disconnected - waiting for reconnection");
+    wasConnected = false;
+  } else if (connected && !wasConnected) {
+    Serial.printf(">> WiFi reconnected - IP: %s\n", wifiGetIP().c_str());
+    wasConnected = true;
+  }
 }
