@@ -28,7 +28,7 @@ void setup() {
   hardwareInit();
 
   Serial.printf("\n════════════════════════════════════════════\n");
-  Serial.printf("CodeCell\n");
+  Serial.printf("CodeCell Firmware\n");
   Serial.printf("Version: %s\n", FIRMWARE_VERSION);
   Serial.printf("Build Date: %s\n", BUILD_DATE);
   Serial.printf("Board: ");
@@ -40,9 +40,7 @@ void setup() {
   Serial.printf("Stream Rate: %d Hz\n", STREAM_RATE_HZ);
   Serial.printf("════════════════════════════════════════════\n\n");
 
-  #ifdef LED
   ledInit();
-  #endif
   if (!wifiInit())    { while (1) delay(1000); }
   oscInit();
   if (!sensorsInit()) { while (1) delay(1000); }

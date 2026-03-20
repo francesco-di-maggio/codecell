@@ -22,8 +22,6 @@
 #include "led.h"
 #include "config.h"
 
-#ifdef LED
-
 #ifdef BATTERY
 #include "battery.h"
 #endif
@@ -93,4 +91,3 @@ void ledBlinkError() {
   }
 }
 
-#endif // LED

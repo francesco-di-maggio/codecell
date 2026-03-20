@@ -89,7 +89,6 @@ Comment out any flag to disable that module (excluded at compile time):
 #define QUAT        // Quaternion rotation
 #define ACCEL       // Linear acceleration
 #define BATTERY     // Battery monitoring
-#define LED         // NeoPixel status LED
 #define LIGHT       // VCNL4040 light sensor
 #define BUTTON      // GPIO button inputs
 #define PING        // 1 Hz heartbeat
