@@ -18,7 +18,7 @@
                     "numinlets": 2,
                     "numoutlets": 1,
                     "outlettype": [ "" ],
-                    "patching_rect": [ 215.0, 424.0, 35.0, 22.0 ],
+                    "patching_rect": [ 216.0, 424.0, 35.0, 22.0 ],
                     "text": "reset"
                 }
             },
@@ -335,8 +335,8 @@
                     "numinlets": 2,
                     "numoutlets": 1,
                     "outlettype": [ "" ],
-                    "patching_rect": [ 177.0, 424.0, 31.0, 22.0 ],
-                    "text": "stop"
+                    "patching_rect": [ 177.0, 424.0, 32.0, 22.0 ],
+                    "text": "start"
                 }
             },
             {
@@ -346,8 +346,8 @@
                     "numinlets": 2,
                     "numoutlets": 1,
                     "outlettype": [ "" ],
-                    "patching_rect": [ 138.0, 424.0, 32.0, 22.0 ],
-                    "text": "start"
+                    "patching_rect": [ 139.0, 424.0, 31.0, 22.0 ],
+                    "text": "stop"
                 }
             },
             {
@@ -986,8 +986,8 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 439.0, 316.0, 85.0, 60.0 ],
-                    "text": "BUTTONS\n\nGPIOs \n(Default = 5,6)"
+                    "patching_rect": [ 439.0, 316.0, 88.0, 60.0 ],
+                    "text": "BUTTONS\n\nGPIOs \n(Default = 5, 6)"
                 }
             },
             {
@@ -1008,7 +1008,7 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 90.0, 308.0, 144.0, 47.0 ],
+                    "patching_rect": [ 82.0, 305.5, 144.0, 47.0 ],
                     "text": "LIGHT\n\nProximity, White, Ambient"
                 }
             },
@@ -1020,8 +1020,8 @@
                     "numinlets": 2,
                     "numoutlets": 1,
                     "outlettype": [ "" ],
-                    "patching_rect": [ 83.0, 278.0, 158.0, 22.0 ],
-                    "text": "11334 40 88"
+                    "patching_rect": [ 98.0, 278.0, 112.0, 22.0 ],
+                    "text": "14757 116 235"
                 }
             },
             {
@@ -1215,7 +1215,7 @@
                     "numoutlets": 1,
                     "outlettype": [ "" ],
                     "patching_rect": [ 863.0, 318.0, 50.0, 22.0 ],
-                    "text": "0 1 3"
+                    "text": "0 6 5"
                 }
             },
             {
@@ -1975,7 +1975,7 @@
             {
                 "patchline": {
                     "destination": [ "obj-56", 2 ],
-                    "midpoints": [ 224.5, 471.0, 186.5, 471.0 ],
+                    "midpoints": [ 225.5, 471.0, 186.5, 471.0 ],
                     "source": [ "obj-105", 0 ]
                 }
             },
@@ -2003,7 +2003,7 @@
             {
                 "patchline": {
                     "destination": [ "obj-124", 1 ],
-                    "midpoints": [ 138.0, 264.0, 231.5, 264.0 ],
+                    "midpoints": [ 138.0, 264.0, 200.5, 264.0 ],
                     "source": [ "obj-11", 3 ]
                 }
             },
@@ -2188,7 +2188,7 @@
             {
                 "patchline": {
                     "destination": [ "obj-56", 2 ],
-                    "midpoints": [ 147.5, 471.0, 186.5, 471.0 ],
+                    "midpoints": [ 148.5, 471.0, 186.5, 471.0 ],
                     "source": [ "obj-58", 0 ]
                 }
             },
