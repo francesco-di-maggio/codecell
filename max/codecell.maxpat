@@ -1021,7 +1021,7 @@
                     "numoutlets": 1,
                     "outlettype": [ "" ],
                     "patching_rect": [ 83.0, 278.0, 158.0, 22.0 ],
-                    "text": "2 2757 4331"
+                    "text": "11334 40 88"
                 }
             },
             {
@@ -1215,7 +1215,7 @@
                     "numoutlets": 1,
                     "outlettype": [ "" ],
                     "patching_rect": [ 863.0, 318.0, 50.0, 22.0 ],
-                    "text": "0 4 28"
+                    "text": "0 1 3"
                 }
             },
             {

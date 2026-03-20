@@ -1,4 +1,4 @@
-# codecell
+# Codecell - Arduino Firmware
 
 Firmware for CodeCell (ESP32-C3 / C6) using the Adafruit BNO085 library.
 Streams sensor data to Max/MSP (or any OSC receiver) over WiFi.
