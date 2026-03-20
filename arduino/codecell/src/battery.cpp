@@ -26,9 +26,7 @@
 #include "config.h"
 #include "esp_sleep.h"
 
-#ifdef LED
 #include "led.h"
-#endif
 
 // ================================
 // Private State
@@ -145,7 +143,6 @@ static void updateStateMachine(int gpio0) {
           Serial.println(">> Power Status: Battery low - Going to Sleep");
           batteryRunCounter = 0;
 
-          #ifdef LED
           // Flash red 10x before sleep (matches CodeCell library behavior)
           for (int i = 0; i < 10; i++) {
             neopixelWrite(LED_PIN, LED_BRIGHTNESS, 0, 0);
@@ -153,7 +150,6 @@ static void updateStateMachine(int gpio0) {
             neopixelWrite(LED_PIN, 0, 0, 0);
             delay(50);
           }
-          #endif
 
           // Wake up when USB is plugged in (GPIO0 goes LOW)
           esp_deep_sleep_enable_gpio_wakeup(1ULL << USB_DETECT_PIN, ESP_GPIO_WAKEUP_GPIO_LOW);
@@ -178,9 +174,7 @@ static void updateStateMachine(int gpio0) {
     stabilityCounter = 0;
     lastReadVoltage = voltage;
 
-    #ifdef LED
     ledUpdate();
-    #endif
   }
 }
 

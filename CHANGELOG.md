@@ -12,6 +12,8 @@
 
 ### Changed
 - `arduino/README.md`: updated OSC reference, feature flags, file structure, and compilation error table to reflect current state
+- `LED` feature flag removed — NeoPixel is always present on hardware; `ledInit()` called unconditionally in setup; `#ifdef LED` guards removed from `battery.cpp` and `osc.cpp`
+- Init failures (`wifiInit`, `sensorsInit`) now call `ledBlinkError()` instead of `while (1) delay(1000)`
 
 ---
 

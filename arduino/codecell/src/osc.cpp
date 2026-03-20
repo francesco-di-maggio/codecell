@@ -19,10 +19,7 @@
 #include "config.h"
 #include "secrets.h"
 
-#ifdef LED
 #include "led.h"
-#endif
-
 #include <WiFiUdp.h>
 #include <OSCBundle.h>
 
@@ -43,7 +40,6 @@ static void handleMessage(OSCMessage& msg) {
     ESP.restart();
   }
 
-  #ifdef LED
   if (msg.fullMatch("/led")) {
     if (msg.size() == 1) {
       int value = msg.getInt(0);
@@ -63,7 +59,6 @@ static void handleMessage(OSCMessage& msg) {
       ledSet(r, g, b);
     }
   }
-  #endif
 }
 
 // ================================

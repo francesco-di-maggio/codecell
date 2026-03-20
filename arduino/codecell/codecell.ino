@@ -41,9 +41,9 @@ void setup() {
   Serial.printf("════════════════════════════════════════════\n\n");
 
   ledInit();
-  if (!wifiInit())    { while (1) delay(1000); }
+  if (!wifiInit())    { ledBlinkError(); }
   oscInit();
-  if (!sensorsInit()) { while (1) delay(1000); }
+  if (!sensorsInit()) { ledBlinkError(); }
 
   Serial.println();
   Serial.printf("════════════════════════════════════════════\n");
