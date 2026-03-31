@@ -9,7 +9,7 @@
  *
  * Setup: copy secrets.template.h to secrets.h and fill credentials
  *
- * OSC address pattern: /codecell/{INDEX}/{stream}
+ * OSC address pattern: /codecell/{DEVICE_INDEX}/{stream}
  *
  * Outgoing streams (feature-flag controlled):
  *   /codecell/1/quat     w x y z (float)
@@ -30,13 +30,18 @@
 // =============================================================
 
 // -- Sketch info ----------------------------------------------
-#define SKETCH   "CodeCell TO OSC"  // sketch name
-#define VERSION  "0.1.0"            // firmware version
-#define DATE     __DATE__           // build date
+#define SKETCH  "codecell-main"
+#define VERSION "0.1.0"
+#define AUTHOR  "Francesco Di Maggio"
+#if CONFIG_IDF_TARGET_ESP32C6
+  #define BOARD "ESP32-C6"
+#else
+  #define BOARD "ESP32-C3"
+#endif
 
 // -- OSC address ----------------------------------------------
-#define INDEX    1                  // device index (e.g. /codecell/1/stream)
-#define BASE     "/codecell"        // base path
+#define DEVICE_INDEX 1              // device index (e.g. /codecell/1/stream)
+#define BASE_ADDRESS "/codecell"    // base OSC path
 
 // -- Feature flags (Sensors) ---------------------------------
 // Comment out a flag to disable its stream.
@@ -129,22 +134,23 @@ static bool buttonChanged[numButtons] = {false};
 #endif
 
 // =============================================================
+// BOOT INFO
+// =============================================================
+void printBootInfo() {
+  Serial.printf("\n════════════════════════════════════════════\n");
+  Serial.printf(" %s  v%s  %s\n", SKETCH, VERSION, __DATE__);
+  Serial.printf(" %s\n", AUTHOR);
+  Serial.printf(" Board:  %s\n", BOARD);
+  Serial.printf(" OSC:    %s/%d  @  %d Hz\n", BASE_ADDRESS, DEVICE_INDEX, RUN_RATE_HZ);
+  Serial.printf("════════════════════════════════════════════\n");
+}
+
+// =============================================================
 // HELPERS
 // =============================================================
 static void oscAddr(char* buf, size_t len, const char* path) {
-  snprintf(buf, len, "%s/%d/%s", BASE, INDEX, path);
+  snprintf(buf, len, "%s/%d/%s", BASE_ADDRESS, DEVICE_INDEX, path);
 }
-
-// static void printIdentityBanner() {
-//   Serial.printf("\n════════════════════════════════════════════\n");
-//   Serial.printf("Code: %s\n", SKETCH);
-//   Serial.printf("Version: v%s\n", VERSION);
-//   Serial.printf("Build Date: %s\n", DATE);
-//   Serial.printf("Base Path: %s\n", BASE);
-//   Serial.printf("Device Index: %d\n", INDEX);
-//   Serial.printf("Stream Rate: %d Hz\n", RUN_RATE_HZ);
-//   Serial.printf("════════════════════════════════════════════");
-// }
 
 // =============================================================
 // WIFI
@@ -427,7 +433,7 @@ void buttonStream(OSCBundle& bundle) {
   for (int i = 0; i < numButtons; i++) {
     if (buttonChanged[i]) {
       char addr[48];
-      snprintf(addr, sizeof(addr), "%s/%d/button/%d", BASE, INDEX, i + 1);
+      snprintf(addr, sizeof(addr), "%s/%d/button/%d", BASE_ADDRESS, DEVICE_INDEX, i + 1);
       bundle.add(addr).add((int)buttonStates[i]);
       buttonChanged[i] = false;
     }
@@ -494,11 +500,7 @@ void setup() {
     delay(SERIAL_SETTLE_MS);
   }
 
-  // printIdentityBanner();
-
-  Serial.printf("\n════════════════════════════════════════════\n");
-  Serial.printf("Initializing...\n");
-  Serial.printf("════════════════════════════════════════════");
+  printBootInfo();
 
   // Build sensor bitmask for CodeCell Init().
   uint32_t sensors = 0;

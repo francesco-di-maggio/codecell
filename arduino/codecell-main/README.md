@@ -60,6 +60,7 @@ Comment out a flag to disable that stream:
 ```cpp
 #define ACCEL    // Linear acceleration (world-frame)
 #define BATTERY  // Voltage, level, power state
+// #define BUTTON   // GPIO button inputs
 #define LIGHT    // Proximity, ambient, white
 #define QUAT     // Quaternion rotation
 #define PING     // Heartbeat
@@ -79,6 +80,7 @@ All addresses follow the pattern `/codecell/{INDEX}/{stream}` — `INDEX` defaul
 | `/codecell/1/accel` | x y z | float (m/s²) | on change |
 | `/codecell/1/battery` | voltage(mV) percentage powerState | int | on change |
 | `/codecell/1/light` | proximity ambient white | int | on change |
+| `/codecell/1/button/N` | state (0 or 1) | int | on change |
 | `/codecell/1/ping` | — | — | 1 Hz |
 | `/codecell/1/ip` | IP address | string | every 10 s |
 | `/codecell/1/uptime` | seconds | int | 1 Hz |

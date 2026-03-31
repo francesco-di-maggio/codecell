@@ -9,9 +9,7 @@
 // ================================
 // VERSION
 // ================================
-#define FIRMWARE_VERSION "v1.2.3"
-#define BUILD_DATE "2026-03-20"
-#define AUTHOR "Francesco Di Maggio"
+#define VERSION "0.1.0"
 
 // ================================
 // FEATURE FLAGS

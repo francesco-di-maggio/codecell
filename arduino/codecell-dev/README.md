@@ -67,7 +67,6 @@ codecell-dev/
 │   ├── stream.h/cpp    # OSC bundle builder
 │   ├── wifi.h/cpp      # WiFi station mode with reconnection
 │   └── secrets.h       # WiFi credentials (gitignored)
-└── codecell-dev.ino
 ```
 
 ## Configuration
@@ -113,4 +112,4 @@ All addresses follow the pattern `/codecell/{INDEX}/{stream}` — `INDEX` defaul
 | `/reboot` | Restarts the device |
 | `/led` | `0` — LED off |
 | `/led` | `1` — LED automatic (battery status) |
-| `/led` | `r g b` — Manual RGB (0–255) |
+| `/led` | `r g b` — Manual RGB (0–255), optional 4th arg: brightness (0–10) |

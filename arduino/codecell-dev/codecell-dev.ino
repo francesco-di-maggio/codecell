@@ -18,6 +18,27 @@
 #include "src/sensors.h"
 #include "src/stream.h"
 
+// -- Sketch info ----------------------------------------------
+#define SKETCH "codecell-dev"
+#define AUTHOR "Francesco Di Maggio"
+#if CONFIG_IDF_TARGET_ESP32C6
+  #define BOARD "ESP32-C6"
+#else
+  #define BOARD "ESP32-C3"
+#endif
+
+// ================================
+// Boot Info
+// ================================
+void printBootInfo() {
+  Serial.printf("\n════════════════════════════════════════════\n");
+  Serial.printf(" %s  v%s  %s\n", SKETCH, VERSION, __DATE__);
+  Serial.printf(" %s\n", AUTHOR);
+  Serial.printf(" Board:  %s\n", BOARD);
+  Serial.printf(" OSC:    %s/%d  @  %d Hz\n", BASE_ADDRESS, DEVICE_INDEX, STREAM_RATE_HZ);
+  Serial.printf("════════════════════════════════════════════\n");
+}
+
 // ================================
 // Setup
 // ================================
@@ -26,27 +47,14 @@ void setup() {
   Serial.begin(115200);
 
   hardwareInit();
-
-  Serial.printf("\n════════════════════════════════════════════\n");
-  Serial.printf("CodeCell Firmware\n");
-  Serial.printf("Version: %s\n", FIRMWARE_VERSION);
-  Serial.printf("Build Date: %s\n", BUILD_DATE);
-  Serial.printf("Board: ");
-  #if CONFIG_IDF_TARGET_ESP32C6
-  Serial.println("ESP32-C6");
-  #else
-  Serial.println("ESP32-C3");
-  #endif
-  Serial.printf("Stream Rate: %d Hz\n", STREAM_RATE_HZ);
-  Serial.printf("════════════════════════════════════════════\n\n");
+  printBootInfo();
 
   ledInit();
   if (!wifiInit())    { ledBlinkError(); }
   oscInit();
   if (!sensorsInit()) { ledBlinkError(); }
 
-  Serial.println();
-  Serial.printf("════════════════════════════════════════════\n");
+  Serial.printf("\n════════════════════════════════════════════\n");
   Serial.printf("System Ready\n");
   Serial.printf("════════════════════════════════════════════\n\n");
 }
