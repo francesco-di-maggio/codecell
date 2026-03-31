@@ -1,57 +1,55 @@
 # CodeCell
 
-Real-time sensor streaming from CodeCell (ESP32-C3 / C6 + BNO085) to Max/MSP over WiFi/OSC.
+Real-time sensor streaming from CodeCell (ESP32-C3 / C6) to Max/MSP over WiFi and OSC.
 
 ## Contents
 
 ```
 codecell/
 ├── arduino/
-│   └── codecell/          # Firmware (Adafruit BNO085, modular src/)
+│   ├── codecell-main/     # Firmware using the official CodeCell library
+│   ├── codecell-dev/      # Firmware using a custom modular implementation
+│   └── secrets.template.h # WiFi and OSC credentials template
 ├── max/
-│   ├── codecell.maxpat    # Max/MSP patch
-│   └── js/
-│       ├── energy.js      # RMS acceleration energy (leaky integrator)
-│       └── peakhold.js    # Peak-hold envelope follower with Schmitt trigger
+│   ├── codecell-main.maxpat
+│   ├── codecell-dev.maxpat
+│   └── js/                # Shared JavaScript objects
 ├── CHANGELOG.md
-└── LICENSE
+├── LICENSE
+└── README.md              # This file
 ```
-
-## Quick Start
-
-1. Install libraries: `Adafruit BNO08x`, `CNMAT OSC`
-2. Copy `arduino/secrets.template.h` → `arduino/codecell/secrets.h` and fill in your network details
-3. Open `arduino/codecell/codecell.ino` and flash to your device
-4. Open `max/codecell.maxpat` in Max/MSP
-
-See [arduino/codecell/README.md](arduino/codecell/README.md) for full configuration reference.
-
-## OSC Data Format
-
-All addresses: `/codecell/{DEVICE_INDEX}/{sensor}` (default index: 1)
-
-| Address | Data | Type | Rate |
-|---------|------|------|------|
-| `/codecell/1/quat` | w x y z | float | on change |
-| `/codecell/1/euler` | roll pitch yaw | float (degrees) | on change |
-| `/codecell/1/accel` | x y z | float (m/s²) | on change |
-| `/codecell/1/battery` | voltage(mV) percentage powerState | int | on change |
-| `/codecell/1/light` | proximity ambient white | int | on change |
-| `/codecell/1/button/N` | state 0 or 1 | int | on change |
-| `/codecell/1/ping` | 1 | int | 1 Hz |
-| `/codecell/1/ip` | IP address | string | every 10 s |
-| `/codecell/1/uptime` | seconds | int | 1 Hz |
 
 ## Hardware
 
-- CodeCell board (ESP32-C3 or C6)
-- Built-in BNO085 9-DOF IMU
-- Optional: VCNL4040 light/proximity sensor, LiPo battery, GPIO buttons
+- [CodeCell C3](https://microbots.io/products/codecell) or [CodeCell C6](https://microbots.io/products/codecell-c6) — BNO085 IMU, VCNL4040 light/proximity sensor
+- USB-C cable (data-capable, not charge-only)
+- Optional: LiPo battery, GPIO buttons
 
-## Documentation
+## Requirements
 
-- [Firmware reference](arduino/codecell/README.md) — configuration, OSC reference, hardware pinout
-- [Changelog](CHANGELOG.md) — version history
+### Arduino IDE
+Version 2.0 or later — https://www.arduino.cc/en/software
+
+### ESP32 Arduino Core (3.x)
+1. Arduino IDE → Preferences → Additional Board Manager URLs:
+   ```
+   https://dl.espressif.com/dl/package_esp32_index.json
+   https://espressif.github.io/arduino-esp32/package_esp32_index.json
+   ```
+2. Tools → Board → Boards Manager → search "esp32" → install "esp32 by Espressif Systems" (3.x)
+
+### Libraries
+Install via Sketch → Include Library → Manage Libraries:
+
+| Library | Author | Required by |
+|---------|--------|-------------|
+| CodeCell | Microbots | codecell-main |
+| Adafruit BNO08x | Adafruit | codecell-dev |
+| OSC | Adrian Freed / Yotam Mann | both |
+
+## Reference
+
+- [CodeCell Arduino Setup](https://microbots.io/pages/learn-codecell#arduino-setup)
 
 ## License
 
