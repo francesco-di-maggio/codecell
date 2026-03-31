@@ -547,7 +547,7 @@ void streamSensors() {
   unsigned long now = millis();
   OSCBundle bundle;
 
-  // Sensors (alphabetical)
+  // Sensors 
 #ifdef ACCEL
   accelStream(bundle, now);
 #endif
@@ -564,7 +564,7 @@ void streamSensors() {
   quatStream(bundle, now);
 #endif
 
-  // Periodic (alphabetical)
+  // Periodic
 #ifdef IP
   ipStream(bundle, now);
 #endif
