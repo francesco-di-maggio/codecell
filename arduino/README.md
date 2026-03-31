@@ -8,3 +8,6 @@ Two firmware projects for CodeCell. See each subfolder for setup and configurati
 ## Credentials
 
 Copy `secrets.template.h` to `secrets.h` inside your chosen project folder and fill in your WiFi and OSC settings. `secrets.h` is gitignored — never commit it.
+
+- `codecell-main/` — copy to `codecell-main/secrets.h`
+- `codecell-dev/` — copy to `codecell-dev/src/secrets.h`

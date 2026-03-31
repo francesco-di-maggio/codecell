@@ -65,8 +65,9 @@ codecell-dev/
 │   ├── osc.h/cpp       # OSC send/receive over UDP
 │   ├── sensors.h/cpp   # Sensor coordinator
 │   ├── stream.h/cpp    # OSC bundle builder
-│   └── wifi.h/cpp      # WiFi station mode with reconnection
-└── secrets.h           # WiFi credentials (gitignored)
+│   ├── wifi.h/cpp      # WiFi station mode with reconnection
+│   └── secrets.h       # WiFi credentials (gitignored)
+└── codecell-dev.ino
 ```
 
 ## Configuration
