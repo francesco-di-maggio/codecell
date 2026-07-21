@@ -1,19 +1,12 @@
-# Arduino
-*.bin
-*.elf
-*.hex
-*.map
+# Desktop Services Store
+.DS_Store
 
-# IDE
-.vscode/
-.idea/
+# Claude (local-only working notes)
+.claude/
+CLAUDE.md
 
 # Credentials
 secrets.h
 
-# Development
+# Local dev/reference material
 .dev/
-
-# Max/MSP
-.DS_Store
-max/Screenshot*.png

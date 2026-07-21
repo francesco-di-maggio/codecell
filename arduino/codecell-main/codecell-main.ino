@@ -78,7 +78,6 @@
 // -- Serial ---------------------------------------------------
 // Time to wait for Serial connection on boot before proceeding.
 #define SERIAL_WAIT_MS 1000
-// Extra delay after Serial attach so host monitor is fully ready.
 #define SERIAL_SETTLE_MS 500
 
 // -- WiFi -----------------------------------------------------
@@ -98,10 +97,10 @@
 #define BATTERY_CHANGE_THRESHOLD_MV 50
 
 // LIGHT: EMA smoothing and per-channel thresholds.
-#define LIGHT_EMA_ALPHA   0.4f  // 0.0 = no update, 1.0 = no smoothing
-#define PROX_THRESHOLD    5
-#define AMB_THRESHOLD     20
-#define WHITE_THRESHOLD   30
+#define LIGHT_EMA_ALPHA   0.3f  // 0.0 = no update, 1.0 = no smoothing
+#define PROX_THRESHOLD    2
+#define AMB_THRESHOLD     10
+#define WHITE_THRESHOLD   10
 
 // QUAT: Euclidean distance in quaternion space (same rotation = 0).
 #define QUAT_CHANGE_THRESHOLD   0.01f

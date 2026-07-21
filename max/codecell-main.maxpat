@@ -4,7 +4,7 @@
         "appversion": {
             "major": 9,
             "minor": 1,
-            "revision": 3,
+            "revision": 4,
             "architecture": "x64",
             "modernui": 1
         },
@@ -96,7 +96,7 @@
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 629.0, 172.0, 222.0, 20.0 ],
+                    "patching_rect": [ 623.0, 172.0, 222.0, 20.0 ],
                     "text": "mA estimate consumption (Default = 85)"
                 }
             },
@@ -130,8 +130,7 @@
                     "numinlets": 2,
                     "numoutlets": 1,
                     "outlettype": [ "" ],
-                    "patching_rect": [ 98.0, 233.0, 112.0, 22.0 ],
-                    "text": "13322 24 90"
+                    "patching_rect": [ 98.0, 233.0, 112.0, 22.0 ]
                 }
             },
             {
@@ -199,7 +198,7 @@
                         "appversion": {
                             "major": 9,
                             "minor": 1,
-                            "revision": 3,
+                            "revision": 4,
                             "architecture": "x64",
                             "modernui": 1
                         },
@@ -324,8 +323,7 @@
                     "numinlets": 2,
                     "numoutlets": 1,
                     "outlettype": [ "" ],
-                    "patching_rect": [ 788.0, 273.0, 50.0, 22.0 ],
-                    "text": "0 0 26"
+                    "patching_rect": [ 788.0, 273.0, 50.0, 22.0 ]
                 }
             },
             {
@@ -361,7 +359,7 @@
                         "appversion": {
                             "major": 9,
                             "minor": 1,
-                            "revision": 3,
+                            "revision": 4,
                             "architecture": "x64",
                             "modernui": 1
                         },
@@ -818,12 +816,12 @@
             {
                 "box": {
                     "id": "obj-16",
-                    "linecount": 5,
+                    "linecount": 3,
                     "maxclass": "comment",
                     "numinlets": 1,
                     "numoutlets": 0,
-                    "patching_rect": [ 807.0, 479.0, 179.0, 74.0 ],
-                    "text": "RUNTIME ESTIMATE\n\nh.mm (hour.minutes)\n\nDefault = 150 mAh Lipo Battery "
+                    "patching_rect": [ 807.0, 479.0, 126.0, 47.0 ],
+                    "text": "RUNTIME ESTIMATE\n\nh.mm (hour.minutes)"
                 }
             },
             {
